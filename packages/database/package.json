@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@personal-platform/config": "workspace:*",
+    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.21.4"
   }
 }
