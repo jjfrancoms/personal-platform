@@ -1,4 +1,4 @@
-import ffmpeg from "fluent-ffmpeg";
+import ffmpeg from "./setup";
 
 export interface AudioConvertOptions {
   inputPath: string;

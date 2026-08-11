@@ -1,10 +1,12 @@
 import express from "express";
+import cors from "cors";
 import { VideoProcessor } from "./ffmpeg/video-processor";
 import { AudioProcessor } from "./ffmpeg/audio-processor";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.use(cors());
 app.use(express.json());
 
 // Health status check
