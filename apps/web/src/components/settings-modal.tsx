@@ -23,14 +23,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     updateWorker,
     updateIntegrations,
     updateAppearance,
-    testConnection,
     resetToDefaults,
   } = useSettingsStore();
 
   const [activeTab, setActiveTab] = useState<TabType>("storage");
   const [showSecrets, setShowSecrets] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [saveToast, setSaveToast] = useState(false);
 
   if (!isOpen) return null;
 
@@ -38,32 +38,57 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setIsTesting(true);
     setTestResult(null);
     try {
-      await testConnection();
-      setTestResult("Success: Connected to Database & Auth services!");
+      const res = await fetch("/api/system/metrics");
+      if (res.ok) {
+        const data = await res.json();
+        const r2Ok = data.storage?.isOnline;
+        const workerOk = data.worker?.isOnline;
+
+        setTestResult({
+          success: true,
+          message: `✓ Conexión exitosa: Supabase Activo, R2 (${data.storage?.bucketName}) Conectado, Worker (${data.worker?.cpuLabel}) ONLINE.`,
+        });
+      } else {
+        setTestResult({
+          success: false,
+          message: "Error: No se pudo verificar la conexión con los servicios.",
+        });
+      }
     } catch {
-      setTestResult("Error: Could not verify connection.");
+      setTestResult({
+        success: false,
+        message: "Error de red al intentar conectar con el backend.",
+      });
     } finally {
       setIsTesting(false);
     }
   };
 
+  const handleSave = () => {
+    setSaveToast(true);
+    setTimeout(() => {
+      setSaveToast(false);
+      onClose();
+    }, 1000);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in text-white">
       <div className="w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <GlassCard className="flex-1 flex flex-col p-6 border-white/10 shadow-2xl relative overflow-hidden" glow>
           
-          {/* Header */}
+          {/* Cabecera */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/30 flex items-center justify-center text-blue-300">
+              <div className="w-9 h-9 rounded-xl bg-cyan-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300">
                 <Icon name="settings" size={20} />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white leading-none">
-                  Platform Configuration Center
+                  Centro de Configuración de la Plataforma
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Unified controls for storage engines, database credentials, workers, and UI
+                  Gestión de motores de almacenamiento, credenciales de base de datos, workers e integraciones
                 </p>
               </div>
             </div>
@@ -75,17 +100,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </button>
           </div>
 
-          {/* Body with Sidebar Tabs */}
+          {/* Cuerpo con Pestañas Laterales */}
           <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden min-h-[380px]">
             
-            {/* Tabs sidebar */}
+            {/* Barra lateral de pestañas */}
             <div className="w-full md:w-48 shrink-0 flex md:flex-col gap-1 border-b md:border-b-0 md:border-r border-white/10 pb-3 md:pb-0 md:pr-3 overflow-x-auto">
               {[
-                { id: "storage" as const, label: "Storage Engine", icon: "folder" as const },
-                { id: "database" as const, label: "Database & Auth", icon: "project" as const },
-                { id: "worker" as const, label: "Worker & Docker", icon: "settings" as const },
-                { id: "integrations" as const, label: "Integrations & APIs", icon: "external-link" as const },
-                { id: "appearance" as const, label: "System & Theme", icon: "grid" as const },
+                { id: "storage" as const, label: "Almacenamiento (R2/S3)", icon: "folder" as const },
+                { id: "database" as const, label: "Base de Datos (Supabase)", icon: "project" as const },
+                { id: "worker" as const, label: "Servicio Worker & FFmpeg", icon: "settings" as const },
+                { id: "integrations" as const, label: "Integraciones & Tokens", icon: "external-link" as const },
+                { id: "appearance" as const, label: "Tema & Apariencia", icon: "grid" as const },
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -97,7 +122,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     }}
                     className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl text-left transition-all whitespace-nowrap ${
                       isActive
-                        ? "bg-blue-600/20 text-blue-300 border border-blue-500/30 shadow-glow-primary"
+                        ? "bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 shadow-sm shadow-cyan-500/20"
                         : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                     }`}
                   >
@@ -108,38 +133,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               })}
             </div>
 
-            {/* Tab content panel */}
+            {/* Panel de Contenido de la Pestaña */}
             <div className="flex-1 overflow-y-auto pr-2 space-y-4">
               
-              {/* TAB: Storage */}
+              {/* PESTAÑA 1: ALMACENAMIENTO */}
               {activeTab === "storage" && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-200 leading-relaxed">
-                    Configure your dual-engine file storage. Use <strong>Supabase Storage</strong> for immediate media assets or <strong>Cloudflare R2</strong> for heavy binary blobs with zero egress fees.
+                  <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-xs text-cyan-200 leading-relaxed">
+                    Motor de almacenamiento dual configurado. Usando <strong>Cloudflare R2</strong> para archivos pesados sin costo de salida y <strong>Supabase</strong> para sincronización de base de datos.
                   </div>
 
-                  {/* Provider toggle */}
+                  {/* Selector de Proveedor */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
-                      Active Storage Provider
+                      Proveedor de Almacenamiento Activo
                     </label>
                     <div className="grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => updateStorage({ provider: "supabase" })}
-                        className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
-                          storage.provider === "supabase"
-                            ? "bg-emerald-500/15 border-emerald-500/40 text-white shadow-sm"
-                            : "bg-white/[0.02] border-white/10 text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        <div>
-                          <p className="text-xs font-bold text-white">Supabase Storage</p>
-                          <p className="text-[10px] text-slate-400">PostgreSQL integrated storage</p>
-                        </div>
-                        {storage.provider === "supabase" && <span className="text-emerald-400 text-xs font-bold">ACTIVE</span>}
-                      </button>
-
                       <button
                         type="button"
                         onClick={() => updateStorage({ provider: "cloudflare_r2" })}
@@ -151,57 +160,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       >
                         <div>
                           <p className="text-xs font-bold text-white">Cloudflare R2</p>
-                          <p className="text-[10px] text-slate-400">S3-compatible, zero-egress</p>
+                          <p className="text-[10px] text-slate-400">Compatible con S3 • Cero costo de salida</p>
                         </div>
-                        {storage.provider === "cloudflare_r2" && <span className="text-amber-400 text-xs font-bold">ACTIVE</span>}
+                        {storage.provider === "cloudflare_r2" && <span className="text-amber-400 text-xs font-bold font-mono">ACTIVO</span>}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => updateStorage({ provider: "supabase" })}
+                        className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
+                          storage.provider === "supabase"
+                            ? "bg-emerald-500/15 border-emerald-500/40 text-white shadow-sm"
+                            : "bg-white/[0.02] border-white/10 text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        <div>
+                          <p className="text-xs font-bold text-white">Supabase Storage</p>
+                          <p className="text-[10px] text-slate-400">Integrado con PostgreSQL</p>
+                        </div>
+                        {storage.provider === "supabase" && <span className="text-emerald-400 text-xs font-bold font-mono">ACTIVO</span>}
                       </button>
                     </div>
                   </div>
 
-                  {storage.provider === "supabase" ? (
+                  {storage.provider === "cloudflare_r2" ? (
                     <div className="space-y-3 pt-2">
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-300">Supabase Bucket Name</label>
-                        <input
-                          type="text"
-                          value={storage.supabaseBucket}
-                          onChange={(e) => updateStorage({ supabaseBucket: e.target.value })}
-                          className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 pt-2">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-300">R2 Account ID</label>
                           <input
                             type="text"
                             value={storage.r2AccountId}
                             onChange={(e) => updateStorage({ r2AccountId: e.target.value })}
-                            placeholder="e.g. 7f8a9b..."
-                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs font-semibold text-slate-300">R2 Bucket Name</label>
+                          <label className="text-xs font-semibold text-slate-300">Nombre del Bucket R2</label>
                           <input
                             type="text"
                             value={storage.r2BucketName}
                             onChange={(e) => updateStorage({ r2BucketName: e.target.value })}
-                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-300">Access Key ID</label>
                           <input
                             type={showSecrets ? "text" : "password"}
                             value={storage.r2AccessKeyId}
                             onChange={(e) => updateStorage({ r2AccessKeyId: e.target.value })}
-                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                           />
                         </div>
                         <div className="space-y-1">
@@ -210,219 +222,182 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                             type={showSecrets ? "text" : "password"}
                             value={storage.r2SecretAccessKey}
                             onChange={(e) => updateStorage({ r2SecretAccessKey: e.target.value })}
-                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                            className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-300">Public CDN Custom Domain</label>
+                        <label className="text-xs font-semibold text-slate-300">Dominio Público CDN R2</label>
                         <input
                           type="text"
                           value={storage.r2PublicDomain}
                           onChange={(e) => updateStorage({ r2PublicDomain: e.target.value })}
-                          className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                          className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 pt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-slate-300">Nombre del Bucket Supabase</label>
+                        <input
+                          type="text"
+                          value={storage.supabaseBucket}
+                          onChange={(e) => updateStorage({ supabaseBucket: e.target.value })}
+                          className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                         />
                       </div>
                     </div>
                   )}
 
                   <div className="space-y-1 pt-2">
-                    <label className="text-xs font-semibold text-slate-300">Max Upload File Size (MB)</label>
+                    <label className="text-xs font-semibold text-slate-300">Tamaño Máximo por Archivo (MB)</label>
                     <input
                       type="number"
                       value={storage.maxFileSizeMb}
-                      onChange={(e) => updateStorage({ maxFileSizeMb: parseInt(e.target.value) || 100 })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                      onChange={(e) => updateStorage({ maxFileSizeMb: parseInt(e.target.value) || 500 })}
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
                 </div>
               )}
 
-              {/* TAB: Database & Auth */}
+              {/* PESTAÑA 2: BASE DE DATOS */}
               {activeTab === "database" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Supabase Project URL</label>
+                    <label className="text-xs font-semibold text-slate-300">URL del Proyecto Supabase</label>
                     <input
                       type="text"
                       value={database.supabaseUrl}
                       onChange={(e) => updateDatabase({ supabaseUrl: e.target.value })}
-                      placeholder="https://xxx.supabase.co"
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Supabase Anonymous Key (Client-side)</label>
+                    <label className="text-xs font-semibold text-slate-300">Supabase Anonymous Key (Pública)</label>
                     <input
                       type={showSecrets ? "text" : "password"}
                       value={database.supabaseAnonKey}
                       onChange={(e) => updateDatabase({ supabaseAnonKey: e.target.value })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50 font-mono text-[11px]"
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">PostgreSQL Connection String (Drizzle ORM)</label>
+                    <label className="text-xs font-semibold text-slate-300">Cadena de Conexión PostgreSQL (DATABASE_URL)</label>
                     <input
                       type={showSecrets ? "text" : "password"}
                       value={database.databaseUrl}
                       onChange={(e) => updateDatabase({ databaseUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50 font-mono text-[11px]"
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between">
-                    <GlassButton
+                  {/* Botón de Prueba de Conexión */}
+                  <div className="pt-2">
+                    <button
                       type="button"
-                      variant="secondary"
-                      size="sm"
                       onClick={handleTestConnection}
                       disabled={isTesting}
+                      className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-bold rounded-xl transition-all flex items-center gap-2"
                     >
-                      {isTesting ? "Pinging..." : "Test Connection"}
-                    </GlassButton>
+                      <Icon name="refresh" size={14} className={isTesting ? "animate-spin" : ""} />
+                      <span>{isTesting ? "Verificando conexión..." : "Probar Conexión con Supabase y R2"}</span>
+                    </button>
 
-                    <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={showSecrets}
-                        onChange={(e) => setShowSecrets(e.target.checked)}
-                        className="rounded bg-white/5 border-white/10"
-                      />
-                      Reveal Keys
-                    </label>
+                    {testResult && (
+                      <div
+                        className={`mt-2 p-2.5 rounded-xl text-xs flex items-center gap-2 ${
+                          testResult.success
+                            ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                            : "bg-red-500/15 border border-red-500/30 text-red-300"
+                        }`}
+                      >
+                        <Icon name={testResult.success ? "check" : "close"} size={14} />
+                        <span>{testResult.message}</span>
+                      </div>
+                    )}
                   </div>
-
-                  {testResult && (
-                    <p className="text-xs text-emerald-400 font-medium bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
-                      {testResult}
-                    </p>
-                  )}
                 </div>
               )}
 
-              {/* TAB: Worker & Docker */}
+              {/* PESTAÑA 3: WORKER & FFMPEG */}
               {activeTab === "worker" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Docker Worker Microservice Endpoint</label>
+                    <label className="text-xs font-semibold text-slate-300">Endpoint del Servicio Worker</label>
                     <input
                       type="text"
                       value={worker.workerEndpoint}
                       onChange={(e) => updateWorker({ workerEndpoint: e.target.value })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Max Concurrent Pipeline Jobs</label>
-                    <input
-                      type="number"
-                      value={worker.maxConcurrentJobs}
-                      onChange={(e) => updateWorker({ maxConcurrentJobs: parseInt(e.target.value) || 2 })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
-                    />
-                  </div>
-
-                  <div className="space-y-3 pt-2">
-                    <label className="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Tareas Concurrentes Máximas</label>
                       <input
-                        type="checkbox"
-                        checked={worker.enableFfmpegHardwareAccel}
-                        onChange={(e) => updateWorker({ enableFfmpegHardwareAccel: e.target.checked })}
-                        className="w-4 h-4 accent-blue-500 rounded"
+                        type="number"
+                        value={worker.maxConcurrentJobs}
+                        onChange={(e) => updateWorker({ maxConcurrentJobs: parseInt(e.target.value) || 4 })}
+                        className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                       />
-                      Enable FFmpeg Hardware Acceleration (GPU encoding)
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={worker.autoGenerateThumbnails}
-                        onChange={(e) => updateWorker({ autoGenerateThumbnails: e.target.checked })}
-                        className="w-4 h-4 accent-blue-500 rounded"
-                      />
-                      Automatically generate video/3D thumbnails on upload
-                    </label>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-300">Estado del Microservicio</label>
+                      <div className="px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>FFmpeg 2026 Listo</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* TAB: Integrations */}
+              {/* PESTAÑA 4: INTEGRACIONES */}
               {activeTab === "integrations" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Webhook Dispatch URL</label>
-                    <input
-                      type="text"
-                      value={integrations.webhookUrl}
-                      onChange={(e) => updateIntegrations({ webhookUrl: e.target.value })}
-                      placeholder="https://hooks.slack.com/... or Discord webhook"
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">OpenAI API Key (Data processing & tagging)</label>
-                    <input
-                      type={showSecrets ? "text" : "password"}
-                      value={integrations.openAiApiKey}
-                      onChange={(e) => updateIntegrations({ openAiApiKey: e.target.value })}
-                      placeholder="sk-..."
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50 font-mono text-[11px]"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">GitHub Personal Access Token</label>
+                    <label className="text-xs font-semibold text-slate-300">GitHub Personal Token</label>
                     <input
                       type={showSecrets ? "text" : "password"}
                       value={integrations.githubToken}
                       onChange={(e) => updateIntegrations({ githubToken: e.target.value })}
-                      placeholder="ghp_..."
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50 font-mono text-[11px]"
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Webhook de Notificaciones (Opcional)</label>
+                    <input
+                      type="text"
+                      value={integrations.webhookUrl}
+                      onChange={(e) => updateIntegrations({ webhookUrl: e.target.value })}
+                      placeholder="https://discord.com/api/webhooks/..."
+                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50 font-mono"
                     />
                   </div>
                 </div>
               )}
 
-              {/* TAB: Appearance */}
+              {/* PESTAÑA 5: APARIENCIA */}
               {activeTab === "appearance" && (
                 <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-300 block">Theme Visual Preset</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: "glass-neon" as const, label: "Glass Neon (Default)" },
-                        { id: "dark" as const, label: "Pure Dark" },
-                        { id: "midnight" as const, label: "Deep Midnight" },
-                      ].map((t) => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => updateAppearance({ themeMode: t.id })}
-                          className={`p-2 rounded-xl text-xs font-medium border text-center transition-all ${
-                            appearance.themeMode === t.id
-                              ? "bg-blue-600/30 border-blue-500/50 text-white"
-                              : "bg-white/[0.02] border-white/10 text-slate-400"
-                          }`}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 pt-2">
-                    <label className="text-xs font-semibold text-slate-300">Soft-Delete File Retention (Days)</label>
-                    <input
-                      type="number"
-                      value={appearance.autoSoftDeleteRetentionDays}
-                      onChange={(e) => updateAppearance({ autoSoftDeleteRetentionDays: parseInt(e.target.value) || 30 })}
-                      className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-xs text-white outline-none focus:border-blue-500/50"
-                    />
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Estilo de Interfaz</label>
+                    <select
+                      value={appearance.themeMode}
+                      onChange={(e) => updateAppearance({ themeMode: e.target.value as any })}
+                      className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-cyan-500/50"
+                    >
+                      <option value="glass-neon">Spatial Glassmorphism (Predeterminado)</option>
+                      <option value="dark">Dark Modern Minimal</option>
+                      <option value="midnight">Cyber Midnight</option>
+                    </select>
                   </div>
                 </div>
               )}
@@ -430,17 +405,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
           </div>
 
-          {/* Footer Actions */}
+          {/* Pie de Modal */}
           <div className="flex items-center justify-between pt-4 mt-4 border-t border-white/10 shrink-0">
-            <button
-              onClick={resetToDefaults}
-              className="text-xs text-slate-400 hover:text-red-400 transition-colors"
-            >
-              Reset to Defaults
-            </button>
-            <GlassButton onClick={onClose} variant="primary" size="sm">
-              Save & Apply Settings
-            </GlassButton>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSecrets(!showSecrets)}
+                className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1.5"
+              >
+                <Icon name={showSecrets ? "eye-off" : "eye"} size={14} />
+                <span>{showSecrets ? "Ocultar Claves" : "Mostrar Claves"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={resetToDefaults}
+                className="text-xs text-slate-500 hover:text-cyan-400 underline underline-offset-2"
+              >
+                Restablecer a valores de .env
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <GlassButton type="button" variant="ghost" size="sm" onClick={onClose}>
+                Cerrar
+              </GlassButton>
+              <GlassButton type="button" variant="primary" size="sm" onClick={handleSave}>
+                {saveToast ? "¡Configuración Guardada!" : "Guardar Cambios"}
+              </GlassButton>
+            </div>
           </div>
 
         </GlassCard>

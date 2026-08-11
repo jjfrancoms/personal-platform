@@ -61,13 +61,13 @@ export interface PlatformSettingsState {
 
 const DEFAULT_SETTINGS = {
   storage: {
-    provider: "supabase" as const,
-    supabaseBucket: "personal-platform-assets",
-    r2AccountId: "",
-    r2AccessKeyId: "",
-    r2SecretAccessKey: "",
-    r2BucketName: "personal-platform-r2",
-    r2PublicDomain: "https://cdn.personal-platform.dev",
+    provider: "cloudflare_r2" as const,
+    supabaseBucket: "assets",
+    r2AccountId: "2ef4ba6489596a9004db1e06de3b9e4d",
+    r2AccessKeyId: "3ee93f08316611e843d4b0ae0edb01ae",
+    r2SecretAccessKey: "4ec1093a6802fb16327464018d83be9baa0d59d5601ca571d2d38aed7b2dfc07",
+    r2BucketName: "personal-platform-assets",
+    r2PublicDomain: "https://pub-2ef4ba6489596a9004db1e06de3b9e4d.r2.dev",
     maxFileSizeMb: 500,
     allowedExtensions: [
       ".png", ".jpg", ".jpeg", ".svg", ".webp",
@@ -79,10 +79,10 @@ const DEFAULT_SETTINGS = {
     ],
   },
   database: {
-    supabaseUrl: "https://xyzcompany.supabase.co",
-    supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    supabaseServiceRoleKey: "",
-    databaseUrl: "postgresql://postgres:password@localhost:5432/personal_platform",
+    supabaseUrl: "https://wyqzvypfjeivjuxqbkwd.supabase.co",
+    supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5cXp2eXBmamVpdmp1eHFia3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NTc5NTcsImV4cCI6MjEwMjAzMzk1N30.l9X9tCxv5hMoq9kpd34WfgPnNFpl2MDCc9hH3he-uh4",
+    supabaseServiceRoleKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5cXp2eXBmamVpdmp1eHFia3dkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NjQ1Nzk1NywiZXhwIjoyMTAyMDMzOTU3fQ.AYiu1HCxhhNyuCKnWHMKte8gMD-n1BnUZ32aQvibiOU",
+    databaseUrl: "postgresql://postgres.wyqzvypfjeivjuxqbkwd:Bi4Jlrn2cs26Jwi8@aws-0-us-east-2.pooler.supabase.com:6543/postgres",
     connectionStatus: "connected" as const,
   },
   worker: {
@@ -90,12 +90,12 @@ const DEFAULT_SETTINGS = {
     maxConcurrentJobs: 4,
     enableFfmpegHardwareAccel: true,
     autoGenerateThumbnails: true,
-    workerStatus: "idle" as const,
+    workerStatus: "online" as const,
   },
   integrations: {
     webhookUrl: "",
     openAiApiKey: "",
-    githubToken: "",
+    githubToken: "github_pat_jjfrancoms",
   },
   appearance: {
     themeMode: "glass-neon" as const,
