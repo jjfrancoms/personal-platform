@@ -87,20 +87,20 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-2xl animate-fade-in text-white">
       <div className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-        <GlassCard className="p-6 border-white/10 shadow-2xl relative overflow-hidden" glow>
+        <div className="glass-modal-panel p-6 border-white/10 shadow-2xl relative overflow-hidden space-y-4">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/5">
-            <h2 className="text-xl font-semibold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent flex items-center gap-2">
-              <Icon name="project" className="text-primary-light" />
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Icon name="project" size={18} className="text-amber-400" />
               {projectId ? "Editar Proyecto" : "Crear Nuevo Proyecto"}
             </h2>
             <button
               onClick={onClose}
-              className="text-white/60 hover:text-white transition-colors p-1 hover:bg-white/5 rounded-lg"
+              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
             >
-              <Icon name="close" size={20} />
+              <Icon name="close" size={18} />
             </button>
           </div>
 
@@ -239,7 +239,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               </div>
             </div>
           </form>
-        </GlassCard>
+        </div>
       </div>
     </div>
   );

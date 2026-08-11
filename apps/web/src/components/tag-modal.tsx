@@ -37,25 +37,25 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-2xl animate-fade-in text-white">
       <div className="w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-        <GlassCard className="p-6 border-white/10 shadow-2xl relative" glow>
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+        <div className="glass-modal-panel p-6 border-white/10 shadow-2xl relative space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: color }} />
               Nueva Etiqueta
             </h2>
             <button
               onClick={onClose}
-              className="text-white/60 hover:text-white transition-colors"
+              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
             >
-              <Icon name="close" size={18} />
+              <Icon name="close" size={16} />
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                 Nombre de la Etiqueta
               </label>
               <input
@@ -64,12 +64,12 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="ej: Producción o Cuentas"
                 required
-                className="w-full px-4.5 py-2 bg-white/[0.03] border border-white/10 rounded-xl focus:border-blue-500/50 text-white outline-none transition-all placeholder:text-white/30"
+                className="w-full px-3.5 py-2 bg-white/5 border border-white/10 rounded-xl focus:border-cyan-500/50 text-xs text-white outline-none transition-all placeholder:text-slate-500"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+              <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider block">
                 Color de la Etiqueta
               </label>
               <div className="flex flex-wrap gap-2">
@@ -81,7 +81,7 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
                     style={{ backgroundColor: c }}
                     className={`w-6 h-6 rounded-full border-2 transition-transform duration-150 relative ${
                       color === c
-                        ? "border-white scale-110 shadow-md"
+                        ? "border-white scale-110 shadow-md shadow-cyan-500/30"
                         : "border-transparent hover:scale-105"
                     }`}
                   />
@@ -89,7 +89,7 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-3">
+            <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
               <GlassButton type="button" variant="ghost" size="sm" onClick={onClose}>
                 Cancelar
               </GlassButton>
@@ -98,7 +98,7 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
               </GlassButton>
             </div>
           </form>
-        </GlassCard>
+        </div>
       </div>
     </div>
   );

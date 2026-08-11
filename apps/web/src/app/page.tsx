@@ -281,11 +281,11 @@ export default function DashboardPage() {
       {/* 2. CONTENEDOR PRINCIPAL CON DOCK FLOTANTE */}
       <div className="w-full flex-1 flex flex-col md:flex-row items-start gap-4 lg:gap-6 relative">
         
-        {/* DOCK FLOTANTE DE ACCESOS RÁPIDOS */}
+        {/* DOCK FLOTANTE DE ACCESOS RÁPIDOS CON EFECTO GLASS */}
         <aside className="glass-dock-pill py-3 px-4 md:py-6 md:px-3.5 flex flex-row md:flex-col items-center justify-around md:justify-start gap-3 md:gap-5 w-full md:w-auto shrink-0 sticky top-3 md:top-20 z-30 shadow-2xl">
           <button
             onClick={() => { setSelectedFolderId(null); setSelectedTagId(null); }}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20 hover:scale-105 transition-all shrink-0"
+            className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/25 hover:scale-110 active:scale-95 transition-all shrink-0 group relative"
             title="Panel Principal"
           >
             <Icon name="dashboard" size={18} />
@@ -293,15 +293,15 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setIsVaultModalOpen(true)}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center hover:scale-105 transition-all shrink-0 shadow-lg shadow-emerald-500/20"
-            title="Gestor de Contraseñas & Cuentas (CipherVault)"
+            className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shrink-0 shadow-lg shadow-emerald-500/25 group relative"
+            title="Bóveda de Contraseñas & Cuentas (CipherVault)"
           >
             <Icon name="shield" size={18} />
           </button>
 
           <button
             onClick={openCreateModal}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
+            className="w-10 h-10 rounded-2xl bg-orange-500/20 text-orange-300 border border-orange-500/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-lg shadow-orange-500/20"
             title="Crear Nuevo Proyecto"
           >
             <Icon name="plus" size={18} />
@@ -309,7 +309,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setIsFolderModalOpen(true)}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
+            className="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-lg shadow-blue-500/20"
             title="Gestionar Carpetas"
           >
             <Icon name="folder" size={18} />
@@ -317,7 +317,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setIsTagModalOpen(true)}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
+            className="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-lg shadow-cyan-500/20"
             title="Gestionar Etiquetas"
           >
             <Icon name="tag" size={18} />
@@ -326,17 +326,25 @@ export default function DashboardPage() {
           <div className="w-[1px] h-6 md:w-6 md:h-[1px] bg-white/15 my-0 md:my-1 shrink-0" />
 
           <button
+            onClick={() => setIsAutomationsModalOpen(true)}
+            className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shrink-0 shadow-lg shadow-amber-500/20"
+            title="Automatizaciones & Webhooks"
+          >
+            <span className="text-sm">⚡</span>
+          </button>
+
+          <button
             onClick={() => setIsAiDrawerOpen(true)}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center hover:scale-105 transition-all shrink-0"
-            title="Asistente IA"
+            className="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shrink-0 shadow-lg shadow-purple-500/20"
+            title="Copiloto IA"
           >
             <span className="text-sm">✨</span>
           </button>
 
           <button
             onClick={() => setIsSettingsModalOpen(true)}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
-            title="Configuración"
+            className="w-10 h-10 rounded-2xl bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 shadow-lg shadow-cyan-500/20"
+            title="Configuración de la Plataforma"
           >
             <Icon name="settings" size={18} />
           </button>
@@ -374,7 +382,7 @@ export default function DashboardPage() {
               <div className="glass-sub-card glass-glow-amber p-4 flex items-center justify-between">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider block truncate">
                       Almacenamiento en la Nube
                     </span>
@@ -390,12 +398,12 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {/* Indicador de porcentaje real */}
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-amber-500/30 flex items-center justify-center shrink-0 ml-2">
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-amber-500/30 flex items-center justify-center shrink-0 ml-2 bg-amber-950/30">
                   <div
-                    className="absolute inset-0 rounded-full border-4 border-amber-400 border-t-transparent border-r-transparent transition-all duration-700"
+                    className="absolute inset-0 rounded-full border-2 border-amber-400 border-t-transparent border-r-transparent transition-all duration-700"
                     style={{ transform: `rotate(${Math.min(360, (systemMetrics.storage.percentage / 100) * 360)}deg)` }}
                   />
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white">
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold text-amber-300">
                     {systemMetrics.storage.percentage}%
                   </span>
                 </div>
@@ -406,7 +414,7 @@ export default function DashboardPage() {
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${
+                      className={`w-2 h-2 rounded-full ${
                         systemMetrics.worker.isOnline ? "bg-emerald-400 animate-pulse" : "bg-red-400"
                       }`}
                     />
@@ -422,10 +430,14 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {/* Indicador de estado del Worker */}
-                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-purple-500/30 flex items-center justify-center shrink-0 ml-2">
-                  <div className="absolute inset-0 rounded-full border-4 border-purple-400 border-b-transparent -rotate-45" />
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-purple-500/30 flex flex-col items-center justify-center shrink-0 ml-2 bg-purple-950/30 shadow-inner">
                   <span
-                    className={`text-[9px] sm:text-[10px] font-mono font-bold ${
+                    className={`w-2.5 h-2.5 rounded-full mb-0.5 ${
+                      systemMetrics.worker.isOnline ? "bg-emerald-400 shadow-md shadow-emerald-400/80 animate-pulse" : "bg-red-500"
+                    }`}
+                  />
+                  <span
+                    className={`text-[9px] font-mono font-black ${
                       systemMetrics.worker.isOnline ? "text-emerald-300" : "text-red-400"
                     }`}
                   >
@@ -438,7 +450,7 @@ export default function DashboardPage() {
               <div className="glass-sub-card glass-glow-cyan p-4 flex items-center justify-between sm:col-span-2 lg:col-span-1">
                 <div className="space-y-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
                     <span className="text-[10px] uppercase font-bold text-cyan-300 tracking-wider block truncate">
                       Archivos Guardados
                     </span>
@@ -539,7 +551,7 @@ export default function DashboardPage() {
                 </button>
               </div>
             ) : layoutView === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 lg:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
                 {filteredProjects.map((p) => {
                   const folder = folders.find((f) => f.id === p.folderId);
                   const projectAssetCount = assets.filter((a) => a.projectId === p.id).length;
@@ -612,13 +624,36 @@ export default function DashboardPage() {
                         <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                           {p.description || "Sin descripción proporcionada."}
                         </p>
+
+                        {/* Etiquetas del Proyecto */}
+                        {p.tags && p.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {p.tags.slice(0, 3).map((tagId) => {
+                              const tagObj = tags.find((t) => t.id === tagId);
+                              if (!tagObj) return null;
+                              return (
+                                <span
+                                  key={tagObj.id}
+                                  className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold"
+                                  style={{
+                                    backgroundColor: `${tagObj.color}15`,
+                                    color: tagObj.color,
+                                    border: `1px solid ${tagObj.color}35`,
+                                  }}
+                                >
+                                  #{tagObj.name}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
 
                       {/* Pie de Tarjeta */}
                       <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
                         <span className="glass-pill px-2.5 py-0.5 text-[10px] font-mono text-slate-300 flex items-center gap-1">
                           <Icon name="folder" size={11} />
-                          {p.id === "proj-vault" ? "Cuentas Cifradas" : `${projectAssetCount} archivos`}
+                          {p.id === "proj-vault" ? "Bóveda Cifrada" : `${projectAssetCount} archivos`}
                         </span>
 
                         <span className="text-[11px] font-semibold text-amber-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">

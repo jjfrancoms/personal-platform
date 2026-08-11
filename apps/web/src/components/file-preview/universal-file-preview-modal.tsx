@@ -89,13 +89,13 @@ export const UniversalFilePreviewModal: React.FC<UniversalFilePreviewModalProps>
           {/* Header */}
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-blue-600/30 border border-blue-500/30 flex items-center justify-center text-blue-300 font-bold uppercase text-[10px]">
+              <span className="w-8 h-8 rounded-xl bg-cyan-600/30 border border-cyan-500/30 flex items-center justify-center text-cyan-300 font-bold uppercase text-[10px]">
                 {fileExt}
               </span>
               <div>
                 <h3 className="text-base font-bold text-white leading-none">{asset.name}</h3>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  Version {asset.currentVersion} • {asset.storageProvider} • In-Browser Visualizer
+                <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                  Versión v{asset.currentVersion} • Almacenamiento: {asset.storageProvider} • Visor Integrado
                 </p>
               </div>
             </div>
@@ -134,21 +134,21 @@ export const UniversalFilePreviewModal: React.FC<UniversalFilePreviewModalProps>
             ) : fileExt === "txt" ? (
               <CodeDataViewer content={mockContent} filename={asset.name} format="txt" />
             ) : (
-              /* Binary / Unstructured fallback */
+              /* Fallback binario */
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
                   <Icon name="folder" size={32} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Binary Asset Format</h4>
+                  <h4 className="text-sm font-bold text-white">Formato de Archivo Binario</h4>
                   <p className="text-xs text-slate-400 max-w-sm mt-1">
-                    This file ({asset.name}) is a binary package.
+                    El archivo ({asset.name}) es un paquete binario compilado o comprimido.
                   </p>
                 </div>
-                <div className="p-3 bg-white/[0.02] border border-white/10 rounded-xl font-mono text-[11px] text-slate-300 text-left max-w-md w-full">
-                  <p>Storage Key: {asset.storageKey}</p>
-                  <p>Mime Type: {asset.mimeType}</p>
-                  <p>Binary Header: 50 4B 03 04 (Validated)</p>
+                <div className="p-3 bg-white/[0.02] border border-white/10 rounded-xl font-mono text-[11px] text-slate-300 text-left max-w-md w-full space-y-1">
+                  <p>Clave de Almacenamiento: {asset.storageKey}</p>
+                  <p>Tipo MIME: {asset.mimeType}</p>
+                  <p>Firma Binaria: 50 4B 03 04 (Verificado)</p>
                 </div>
               </div>
             )}

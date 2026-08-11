@@ -43,43 +43,43 @@ export const AutomationsModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-3xl h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <GlassCard className="flex-1 flex flex-col p-6 border-white/10 shadow-2xl relative overflow-hidden" glow>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in text-white">
+      <div className="w-full max-w-3xl h-[82vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="glass-modal-panel flex-1 flex flex-col p-6 border-white/10 shadow-2xl relative overflow-hidden">
           
           {/* Header */}
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-violet-600/30 border border-violet-500/30 flex items-center justify-center text-violet-300">
-                <Icon name="settings" size={16} />
+              <div className="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300">
+                <span className="text-sm">⚡</span>
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Automations & Webhooks Hub</h3>
-                <p className="text-[10px] text-slate-400">Event Triggers • AI Connectors • Outbound Webhooks</p>
+                <h3 className="text-base font-bold text-white">Centro de Automatizaciones & Webhooks</h3>
+                <p className="text-[11px] text-slate-400">Disparadores de Eventos • Conectores IA • Webhooks Salientes</p>
               </div>
             </div>
 
             <button
               onClick={() => setIsAutomationsModalOpen(false)}
-              className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg"
+              className="text-slate-400 hover:text-white p-1 hover:bg-white/10 rounded-xl"
             >
-              <Icon name="close" size={20} />
+              <Icon name="close" size={18} />
             </button>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex bg-slate-900/60 p-1 rounded-xl border border-white/5 mb-4 shrink-0">
+          <div className="flex bg-slate-900/60 p-1 rounded-2xl border border-white/5 mb-4 shrink-0">
             {[
-              { id: "rules" as const, label: `Workflow Rules (${rules.length})` },
-              { id: "create" as const, label: "+ Create Rule" },
-              { id: "logs" as const, label: `Execution Logs (${logs.length})` },
+              { id: "rules" as const, label: `Reglas Activas (${rules.length})` },
+              { id: "create" as const, label: "+ Crear Regla" },
+              { id: "logs" as const, label: `Historial de Ejecución (${logs.length})` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-xl transition-all ${
                   activeTab === tab.id
-                    ? "bg-violet-600/30 text-violet-200 border border-violet-500/40 shadow-sm"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -92,63 +92,41 @@ export const AutomationsModal: React.FC = () => {
           {activeTab === "rules" && (
             <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
               {rules.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-8">No automation rules configured.</p>
+                <p className="text-xs text-slate-500 text-center py-8">No hay reglas de automatización configuradas.</p>
               ) : (
                 rules.map((rule) => (
                   <div
                     key={rule.id}
-                    className="p-3.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between gap-3 text-xs"
+                    className="p-3.5 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-between gap-3 text-xs"
                   >
-                    <div className="space-y-1 min-w-0">
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white truncate">{rule.name}</span>
-                        <span
-                          className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                            rule.enabled
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              : "bg-slate-700/40 text-slate-400"
-                          }`}
-                        >
-                          {rule.enabled ? "Active" : "Paused"}
-                        </span>
+                        <span className={`w-2 h-2 rounded-full ${rule.enabled ? "bg-emerald-400 animate-pulse" : "bg-slate-600"}`} />
+                        <h4 className="font-bold text-white text-xs">{rule.name}</h4>
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        When <span className="text-violet-300 font-mono">{rule.trigger}</span> → Action:{" "}
-                        <span className="text-cyan-300 font-mono">{rule.action}</span>
+                        Disparador: <span className="text-amber-300 font-mono">{rule.trigger}</span> → Acción: <span className="text-cyan-300 font-mono">{rule.action}</span>
                       </p>
-                      {rule.webhookUrl && (
-                        <p className="text-[10px] text-slate-500 font-mono truncate max-w-md">
-                          Endpoint: {rule.webhookUrl}
-                        </p>
-                      )}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {rule.webhookUrl && (
-                        <GlassButton
-                          onClick={() => triggerWebhookTest(rule.name, rule.webhookUrl!)}
-                          variant="secondary"
-                          size="sm"
-                          className="text-[11px] py-1"
-                        >
-                          Test Ping
-                        </GlassButton>
-                      )}
-
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => triggerWebhookTest(rule.id)}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-cyan-300 border border-white/5"
+                      >
+                        Probar Disparo
+                      </button>
                       <button
                         onClick={() => toggleRule(rule.id)}
-                        className={`p-1.5 rounded-lg border text-[11px] font-semibold transition-all ${
-                          rule.enabled
-                            ? "bg-emerald-600/20 text-emerald-300 border-emerald-500/30"
-                            : "bg-white/5 text-slate-400 border-white/10"
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${
+                          rule.enabled ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-800 text-slate-400"
                         }`}
                       >
-                        {rule.enabled ? "Enabled" : "Disabled"}
+                        {rule.enabled ? "Activo" : "Inactivo"}
                       </button>
-
                       <button
                         onClick={() => deleteRule(rule.id)}
-                        className="p-1 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded"
+                        className="p-1 text-slate-500 hover:text-red-400"
                       >
                         <Icon name="trash" size={14} />
                       </button>
@@ -159,66 +137,71 @@ export const AutomationsModal: React.FC = () => {
             </div>
           )}
 
-          {/* Tab 2: Create Rule Form */}
+          {/* Tab 2: Create Rule */}
           {activeTab === "create" && (
-            <form onSubmit={handleCreateRule} className="flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
+            <form onSubmit={handleCreateRule} className="flex-1 overflow-y-auto space-y-4 pr-1">
               <div className="space-y-1">
-                <label className="font-bold text-slate-300 uppercase">Rule Name</label>
+                <label className="block text-[11px] uppercase font-semibold text-slate-300">Nombre de la Regla</label>
                 <input
                   type="text"
                   required
                   value={ruleName}
                   onChange={(e) => setRuleName(e.target.value)}
-                  placeholder="e.g. Discord Notification on New Video Upload"
-                  className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-white outline-none focus:border-violet-500/50"
+                  placeholder="ej: Notificar a Discord al subir video"
+                  className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-amber-400/50"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300 uppercase">Trigger Event</label>
+                  <label className="block text-[11px] uppercase font-semibold text-slate-300">Evento Disparador</label>
                   <select
                     value={trigger}
                     onChange={(e) => setTrigger(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white outline-none"
+                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white"
                   >
-                    <option value="on_asset_upload">On Asset Uploaded</option>
-                    <option value="on_job_completed">On Worker Job Completed</option>
-                    <option value="on_project_create">On Project Created</option>
+                    <option value="on_asset_upload">Al subir nuevo archivo</option>
+                    <option value="on_media_job_completed">Al completar compresión de video</option>
+                    <option value="on_project_created">Al crear nuevo proyecto</option>
+                    <option value="on_security_alert">Al detectar alerta de seguridad</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300 uppercase">Action</label>
+                  <label className="block text-[11px] uppercase font-semibold text-slate-300">Acción a Ejecutar</label>
                   <select
                     value={action}
                     onChange={(e) => setAction(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-white outline-none"
+                    className="w-full px-3 py-2 bg-slate-900 border border-white/10 rounded-xl text-xs text-white"
                   >
-                    <option value="send_webhook">Dispatch HTTP Webhook</option>
-                    <option value="ai_summarize">AI Auto-Summarize</option>
-                    <option value="auto_tag">AI Auto-Tag Category</option>
+                    <option value="send_webhook">Enviar Webhook HTTP POST</option>
+                    <option value="generate_ai_summary">Generar Resumen con IA</option>
+                    <option value="compress_video">Comprimir Video en Segundo Plano</option>
+                    <option value="notify_dashboard">Notificación en Dashboard</option>
                   </select>
                 </div>
               </div>
 
               {action === "send_webhook" && (
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-300 uppercase">Target Webhook URL</label>
+                  <label className="block text-[11px] uppercase font-semibold text-slate-300">URL del Webhook (Discord / Slack / Endpoint)</label>
                   <input
                     type="url"
                     required
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
-                    placeholder="https://discord.com/api/webhooks/... or https://myapi.com/hook"
-                    className="w-full px-3 py-2 bg-white/[0.03] border border-white/10 rounded-xl text-white outline-none font-mono focus:border-violet-500/50"
+                    placeholder="https://discord.com/api/webhooks/..."
+                    className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white outline-none focus:border-amber-400/50 font-mono"
                   />
                 </div>
               )}
 
-              <div className="pt-2 flex justify-end">
+              <div className="flex justify-end gap-2 pt-3 border-t border-white/5">
+                <GlassButton type="button" variant="ghost" size="sm" onClick={() => setActiveTab("rules")}>
+                  Cancelar
+                </GlassButton>
                 <GlassButton type="submit" variant="primary" size="sm">
-                  Save Automation Rule
+                  Guardar Regla
                 </GlassButton>
               </div>
             </form>
@@ -226,36 +209,34 @@ export const AutomationsModal: React.FC = () => {
 
           {/* Tab 3: Execution Logs */}
           {activeTab === "logs" && (
-            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 text-xs">
-              <div className="flex justify-end pb-1">
-                <button onClick={clearLogs} className="text-[11px] text-slate-400 hover:text-white underline">
-                  Clear Log History
+            <div className="flex-1 flex flex-col overflow-hidden space-y-2">
+              <div className="flex justify-between items-center text-xs text-slate-400">
+                <span>Registros de Eventos Recientes</span>
+                <button onClick={clearLogs} className="text-amber-400 hover:text-amber-300">
+                  Limpiar Logs
                 </button>
               </div>
-              {logs.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-8">No webhook event logs recorded.</p>
-              ) : (
-                logs.map((l) => (
-                  <div key={l.id} className="p-3 bg-white/[0.02] border border-white/5 rounded-xl space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white">{l.ruleName}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                          {l.statusCode} OK
+              <div className="flex-1 overflow-y-auto space-y-2 font-mono text-[11px] pr-1">
+                {logs.length === 0 ? (
+                  <p className="text-slate-500 text-center py-8">No hay registros de eventos aún.</p>
+                ) : (
+                  logs.map((log) => (
+                    <div key={log.id} className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+                      <div className="flex justify-between text-slate-400 text-[10px]">
+                        <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                        <span className={log.status === "success" ? "text-emerald-400" : "text-amber-400"}>
+                          {log.status.toUpperCase()}
                         </span>
                       </div>
-                      <span className="text-[10px] text-slate-400">{new Date(l.timestamp).toLocaleTimeString()}</span>
+                      <p className="text-slate-200">{log.message}</p>
                     </div>
-                    <pre className="p-2 rounded bg-slate-950/80 border border-white/5 font-mono text-[10px] text-slate-300 overflow-x-auto">
-                      {JSON.stringify(l.payload, null, 2)}
-                    </pre>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           )}
 
-        </GlassCard>
+        </div>
       </div>
     </div>
   );
