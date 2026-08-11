@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { StorageProvider, StorageUploadResult } from "../types";
@@ -101,5 +102,37 @@ export class CloudflareR2Adapter implements StorageProvider {
       return `${cleanDomain}/${key}`;
     }
     return `https://${this.bucket}.r2.dev/${key}`;
+  }
+
+  async getBucketMetrics(): Promise<{
+    objectCount: number;
+    totalSizeBytes: number;
+    bucketName: string;
+    status: "online" | "error";
+    error?: string;
+  }> {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        MaxKeys: 1000,
+      });
+      const response = await this.client.send(command);
+      const objects = response.Contents || [];
+      const totalSizeBytes = objects.reduce((acc, obj) => acc + (obj.Size || 0), 0);
+      return {
+        objectCount: objects.length,
+        totalSizeBytes,
+        bucketName: this.bucket,
+        status: "online",
+      };
+    } catch (err: any) {
+      return {
+        objectCount: 0,
+        totalSizeBytes: 0,
+        bucketName: this.bucket,
+        status: "error",
+        error: err?.message,
+      };
+    }
   }
 }

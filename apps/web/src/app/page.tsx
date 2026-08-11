@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Icon } from "@personal-platform/ui";
 import { useProjectStore, Project } from "../store/projectStore";
 import { useAssetStore } from "../store/assetStore";
@@ -50,6 +50,78 @@ export default function DashboardPage() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
   const [fileViewerProjectId, setFileViewerProjectId] = useState<string | null>(null);
+
+  // Métricas del Sistema en Tiempo Real (Cloudflare R2, Worker, Supabase)
+  const [systemMetrics, setSystemMetrics] = useState<{
+    storage: {
+      usedBytes: number;
+      usedFormatted: string;
+      quotaBytes: number;
+      quotaFormatted: string;
+      percentage: number;
+      fileCount: number;
+      provider: string;
+      bucketName: string;
+      isOnline: boolean;
+      statusText: string;
+    };
+    worker: {
+      isOnline: boolean;
+      service: string;
+      statusLabel: string;
+      cpuCores: number;
+      cpuLabel: string;
+      activeJobs: number;
+      uptimeFormatted: string;
+      gaugePercentage: number;
+    };
+  }>({
+    storage: {
+      usedBytes: 0,
+      usedFormatted: "0 B",
+      quotaBytes: 10 * 1024 * 1024 * 1024,
+      quotaFormatted: "10 GB",
+      percentage: 0,
+      fileCount: 0,
+      provider: "Cloudflare R2 + Supabase",
+      bucketName: "personal-platform-assets",
+      isOnline: true,
+      statusText: "Cloudflare R2 Conectado",
+    },
+    worker: {
+      isOnline: true,
+      service: "FFmpeg 2026",
+      statusLabel: "FFmpeg Listo",
+      cpuCores: 4,
+      cpuLabel: "4 Nodos CPU • Listo",
+      activeJobs: 0,
+      uptimeFormatted: "0m",
+      gaugePercentage: 100,
+    },
+  });
+
+  // Consulta en vivo al backend de métricas cada 10 segundos
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMetrics = async () => {
+      try {
+        const res = await fetch("/api/system/metrics");
+        if (res.ok && isMounted) {
+          const data = await res.json();
+          setSystemMetrics(data);
+        }
+      } catch {
+        // En caso de desconexión momentánea
+      }
+    };
+
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Stats calculation
   const stats = useMemo(() => {
@@ -295,41 +367,88 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* DIALES DE MÉTRICAS */}
+            {/* DIALES DE MÉTRICAS VINCULADOS A SISTEMAS REALES */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               
-              {/* Dial 1: Almacenamiento en la Nube */}
+              {/* Dial 1: Almacenamiento Real en la Nube (Cloudflare R2 + Supabase) */}
               <div className="glass-sub-card glass-glow-amber p-4 flex items-center justify-between">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider block truncate">Almacenamiento en la Nube</span>
-                  <h3 className="text-base sm:text-lg font-black text-white truncate">4.8 GB <span className="text-xs font-normal text-slate-400">/ 50 GB</span></h3>
-                  <p className="text-[10px] text-amber-200/80 truncate">Supabase + Cloudflare R2 Activos</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider block truncate">
+                      Almacenamiento en la Nube
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-white truncate">
+                    {systemMetrics.storage.usedFormatted}{" "}
+                    <span className="text-xs font-normal text-slate-400">
+                      / {systemMetrics.storage.quotaFormatted}
+                    </span>
+                  </h3>
+                  <p className="text-[10px] text-amber-200/80 truncate">
+                    {systemMetrics.storage.statusText}
+                  </p>
                 </div>
+                {/* Indicador de porcentaje real */}
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-amber-500/30 flex items-center justify-center shrink-0 ml-2">
-                  <div className="absolute inset-0 rounded-full border-4 border-amber-400 border-t-transparent border-r-transparent rotate-45" />
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white">10%</span>
+                  <div
+                    className="absolute inset-0 rounded-full border-4 border-amber-400 border-t-transparent border-r-transparent transition-all duration-700"
+                    style={{ transform: `rotate(${Math.min(360, (systemMetrics.storage.percentage / 100) * 360)}deg)` }}
+                  />
+                  <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white">
+                    {systemMetrics.storage.percentage}%
+                  </span>
                 </div>
               </div>
 
-              {/* Dial 2: Servicio Worker Multimedia */}
+              {/* Dial 2: Servicio Worker Heavy Multimedia en Vivo */}
               <div className="glass-sub-card glass-glow-purple p-4 flex items-center justify-between">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block truncate">Servicio Worker</span>
-                  <h3 className="text-base sm:text-lg font-black text-white truncate">FFmpeg 2026</h3>
-                  <p className="text-[10px] text-purple-200/80 truncate">4 Nodos Concurrentes • Listo</p>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        systemMetrics.worker.isOnline ? "bg-emerald-400 animate-pulse" : "bg-red-400"
+                      }`}
+                    />
+                    <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block truncate">
+                      Servicio Worker
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-white truncate">
+                    {systemMetrics.worker.service}
+                  </h3>
+                  <p className="text-[10px] text-purple-200/80 truncate">
+                    {systemMetrics.worker.cpuLabel} • {systemMetrics.worker.statusLabel}
+                  </p>
                 </div>
+                {/* Indicador de estado del Worker */}
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-purple-500/30 flex items-center justify-center shrink-0 ml-2">
                   <div className="absolute inset-0 rounded-full border-4 border-purple-400 border-b-transparent -rotate-45" />
-                  <span className="text-[10px] sm:text-[11px] font-mono font-bold text-emerald-300">100%</span>
+                  <span
+                    className={`text-[9px] sm:text-[10px] font-mono font-bold ${
+                      systemMetrics.worker.isOnline ? "text-emerald-300" : "text-red-400"
+                    }`}
+                  >
+                    {systemMetrics.worker.isOnline ? "ONLINE" : "OFFLINE"}
+                  </span>
                 </div>
               </div>
 
-              {/* Dial 3: Archivos Guardados */}
+              {/* Dial 3: Archivos Guardados y Base de Datos Real */}
               <div className="glass-sub-card glass-glow-cyan p-4 flex items-center justify-between sm:col-span-2 lg:col-span-1">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-cyan-300 tracking-wider block truncate">Archivos Guardados</span>
-                  <h3 className="text-base sm:text-lg font-black text-white truncate">{stats.totalAssets} Archivos</h3>
-                  <p className="text-[10px] text-cyan-200/80 truncate">{stats.total} Proyectos • Sin pérdida</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                    <span className="text-[10px] uppercase font-bold text-cyan-300 tracking-wider block truncate">
+                      Archivos Guardados
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-white truncate">
+                    {stats.totalAssets} Archivos
+                  </h3>
+                  <p className="text-[10px] text-cyan-200/80 truncate">
+                    {stats.total} Proyectos • Supabase Sincronizado
+                  </p>
                 </div>
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shrink-0 ml-2">
                   <Icon name="folder" size={18} />

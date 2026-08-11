@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import os from "os";
 import { VideoProcessor } from "./ffmpeg/video-processor";
 import { AudioProcessor } from "./ffmpeg/audio-processor";
 
@@ -9,14 +10,36 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-// Health status check
+let activeJobsCount = 0;
+
+// Health status & Real System Telemetry
 app.get("/health", (req, res) => {
+  const totalMem = os.totalmem();
+  const freeMem = os.freemem();
+  const usedMem = totalMem - freeMem;
+  const memPercent = Math.round((usedMem / totalMem) * 100);
+  const uptimeSec = Math.floor(process.uptime());
+
+  const hours = Math.floor(uptimeSec / 3600);
+  const minutes = Math.floor((uptimeSec % 3600) / 60);
+  const uptimeFormatted = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
   res.json({
     status: "online",
     service: "personal-platform-worker",
-    uptimeSeconds: Math.floor(process.uptime()),
+    uptimeSeconds: uptimeSec,
+    uptimeFormatted,
     timestamp: new Date().toISOString(),
     ffmpeg: "ready",
+    cpuCores: os.cpus().length,
+    cpuModel: os.cpus()[0]?.model || "Multi-core Host",
+    activeJobs: activeJobsCount,
+    memory: {
+      usedMB: Math.round(usedMem / (1024 * 1024)),
+      totalMB: Math.round(totalMem / (1024 * 1024)),
+      percentage: memPercent,
+    },
+    platform: process.platform,
   });
 });
 
