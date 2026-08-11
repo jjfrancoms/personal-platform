@@ -1,0 +1,14 @@
+{
+  "name": "@personal-platform/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "tsconfig.base.json",
+    "tailwind.config.js"
+  ],
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tailwind.config.js": "./tailwind.config.js"
+  }
+}
+

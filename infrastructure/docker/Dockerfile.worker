@@ -1,0 +1,31 @@
+# Multi-stage Dockerfile for Asynchronous Media Worker with FFmpeg
+FROM node:20-alpine AS base
+
+# Install FFmpeg and FFprobe binaries
+RUN apk update && \
+    apk add --no-cache ffmpeg
+
+WORKDIR /app
+
+# Copy root workspace and package manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/worker/package.json ./apps/worker/
+COPY packages/storage/package.json ./packages/storage/
+COPY packages/config/package.json ./packages/config/
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN pnpm install --filter @personal-platform/worker... --prod=false
+
+# Copy worker and shared package source files
+COPY apps/worker ./apps/worker
+COPY packages/storage ./packages/storage
+COPY packages/config ./packages/config
+
+# Build worker TypeScript
+RUN pnpm --filter @personal-platform/worker build
+
+EXPOSE 8080
+ENV NODE_ENV=production
+ENV PORT=8080
+
+CMD ["node", "apps/worker/dist/server.js"]

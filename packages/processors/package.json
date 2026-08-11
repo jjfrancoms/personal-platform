@@ -1,0 +1,16 @@
+{
+  "name": "@personal-platform/processors",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@personal-platform/config": "workspace:*",
+    "@types/node": "^20",
+    "@types/papaparse": "^5.3.14"
+  }
+}

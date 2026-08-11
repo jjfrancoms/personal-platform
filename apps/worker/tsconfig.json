@@ -1,0 +1,9 @@
+{
+  "extends": "@personal-platform/config/tsconfig.base.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "noEmit": false
+  },
+  "include": ["src"]
+}

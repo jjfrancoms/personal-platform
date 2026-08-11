@@ -1,0 +1,17 @@
+{
+  "name": "@personal-platform/storage",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0",
+    "@aws-sdk/s3-request-presigner": "^3.637.0",
+    "@supabase/supabase-js": "^2.45.1"
+  },
+  "devDependencies": {
+    "@personal-platform/config": "workspace:*",
+    "@types/node": "^20"
+  }
+}
