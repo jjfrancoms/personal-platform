@@ -78,15 +78,29 @@ const DEFAULT_TAGS: Tag[] = [
   { id: "tag-4", name: "Heavy Worker", color: "#ec4899" },
   { id: "tag-5", name: "Java", color: "#f97316" },
   { id: "tag-6", name: "Docker", color: "#06b6d4" },
+  { id: "tag-7", name: "Security & Vault", color: "#10b981" },
 ];
 
 const DEFAULT_FOLDERS: Folder[] = [
   { id: "folder-1", name: "Gaming Tools", color: "#22c55e" },
   { id: "folder-2", name: "Media Assets", color: "#ec4899" },
   { id: "folder-3", name: "Data Processing", color: "#3b82f6" },
+  { id: "folder-4", name: "Security & Vault", color: "#10b981" },
 ];
 
 const DEFAULT_PROJECTS: Project[] = [
+  {
+    id: "proj-vault",
+    name: "CipherVault - Password Manager",
+    description: "Zero-Knowledge password vault, 2FA authenticator tokens, API secrets manager with client-side AES-256-GCM encryption.",
+    color: "#10b981",
+    isFavorite: true,
+    archived: false,
+    folderId: "folder-4",
+    tags: ["tag-7", "tag-3"],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
   {
     id: "proj-1",
     name: "Minecraft Mod Inspector",

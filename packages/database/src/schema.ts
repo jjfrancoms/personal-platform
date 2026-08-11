@@ -117,6 +117,24 @@ export const userSettings = pgTable("user_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const vaultItems = pgTable("vault_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => profiles.id),
+  projectId: uuid("project_id").references(() => projects.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  category: text("category").default("login").notNull(), // login, card, note, api_key, server
+  username: text("username"),
+  encryptedData: text("encrypted_data").notNull(), // AES-256-GCM encrypted payload (password, notes, totp, fields)
+  iv: text("iv").notNull(),
+  salt: text("salt").notNull(),
+  websiteUrl: text("website_url"),
+  icon: text("icon"),
+  isFavorite: boolean("is_favorite").default(false).notNull(),
+  tags: jsonb("tags"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type Profile = typeof profiles.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type Folder = typeof folders.$inferSelect;
@@ -129,3 +147,5 @@ export type Conversion = typeof conversions.$inferSelect;
 export type ConversionOutput = typeof conversionOutputs.$inferSelect;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type UserSettings = typeof userSettings.$inferSelect;
+export type VaultItem = typeof vaultItems.$inferSelect;
+

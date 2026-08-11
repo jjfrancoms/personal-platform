@@ -13,6 +13,7 @@ import { FileViewerModal } from "../components/file-manager/file-viewer-modal";
 import { JobQueueDrawer } from "../components/audio-video/job-queue-drawer";
 import { AutomationsModal } from "../components/automations/automations-modal";
 import { AiAssistantDrawer } from "../components/automations/ai-assistant-drawer";
+import { VaultModal } from "../components/vault/vault-modal";
 
 export default function DashboardPage() {
   const {
@@ -47,6 +48,7 @@ export default function DashboardPage() {
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
   const [fileViewerProjectId, setFileViewerProjectId] = useState<string | null>(null);
 
   // Stats calculation
@@ -114,6 +116,10 @@ export default function DashboardPage() {
 
   const openFileViewer = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    if (id === "proj-vault") {
+      setIsVaultModalOpen(true);
+      return;
+    }
     setFileViewerProjectId(id);
   };
 
@@ -175,6 +181,14 @@ export default function DashboardPage() {
           </button>
 
           <button
+            onClick={() => setIsVaultModalOpen(true)}
+            className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-emerald-300 hover:text-white flex items-center gap-1.5 transition-all shadow-sm shadow-emerald-500/20"
+          >
+            <Icon name="shield" size={13} />
+            <span className="hidden xs:inline">CipherVault</span>
+          </button>
+
+          <button
             onClick={() => setIsSettingsModalOpen(true)}
             className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-cyan-200 hover:text-white flex items-center gap-1.5 transition-all"
           >
@@ -203,6 +217,14 @@ export default function DashboardPage() {
             title="Dashboard Overview"
           >
             <Icon name="dashboard" size={18} />
+          </button>
+
+          <button
+            onClick={() => setIsVaultModalOpen(true)}
+            className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center hover:scale-105 transition-all shrink-0 shadow-lg shadow-emerald-500/20"
+            title="CipherVault - Password & Secrets Manager"
+          >
+            <Icon name="shield" size={18} />
           </button>
 
           <button
@@ -610,6 +632,12 @@ export default function DashboardPage() {
 
       {/* AI Copilot & Document Generator Drawer */}
       <AiAssistantDrawer />
+
+      {/* CipherVault Zero-Knowledge Password & Secrets Manager */}
+      <VaultModal
+        isOpen={isVaultModalOpen}
+        onClose={() => setIsVaultModalOpen(false)}
+      />
 
     </div>
   );
