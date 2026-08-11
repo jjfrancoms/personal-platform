@@ -234,46 +234,29 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Acciones Superiores */}
-        <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end w-full lg:w-auto">
-          <button
-            onClick={() => setIsAiDrawerOpen(true)}
-            className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-violet-200 hover:text-white flex items-center gap-1.5 transition-all"
-          >
-            <span>✨</span>
-            <span className="hidden xs:inline">Copiloto IA</span>
-          </button>
+        {/* Estado del Sistema en Vivo y Perfil */}
+        <div className="flex items-center gap-3 justify-between sm:justify-end w-full lg:w-auto shrink-0">
+          
+          {/* Indicador de Estado Global */}
+          <div className="glass-pill px-3.5 py-1.5 flex items-center gap-2 text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-semibold text-slate-300">
+              {systemMetrics.storage.isOnline && systemMetrics.worker.isOnline
+                ? "Sistemas en Línea"
+                : "Sistemas Parciales"}
+            </span>
+            <span className="text-[10px] text-slate-500 font-mono hidden sm:inline">• R2 + Supabase</span>
+          </div>
 
-          <button
-            onClick={() => setIsAutomationsModalOpen(true)}
-            className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-amber-200 hover:text-white flex items-center gap-1.5 transition-all"
-          >
-            <span>⚡</span>
-            <span className="hidden xs:inline">Automatizaciones</span>
-          </button>
-
-          <button
-            onClick={() => setIsVaultModalOpen(true)}
-            className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-emerald-300 hover:text-white flex items-center gap-1.5 transition-all shadow-sm shadow-emerald-500/20"
-          >
-            <Icon name="shield" size={13} />
-            <span className="hidden xs:inline">Contraseñas</span>
-          </button>
-
-          <button
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-cyan-200 hover:text-white flex items-center gap-1.5 transition-all"
-          >
-            <Icon name="settings" size={13} />
-            <span className="hidden xs:inline">Configuración</span>
-          </button>
-
-          {/* Perfil */}
-          <div className="glass-pill pl-1.5 pr-3.5 py-1 sm:py-1.5 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow shrink-0">
+          {/* Perfil de Usuario */}
+          <div className="glass-pill pl-1.5 pr-3.5 py-1 sm:py-1.5 flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-purple-500/25 shrink-0">
               JF
             </div>
-            <span className="text-xs font-semibold text-white hidden sm:inline">Juan Franco</span>
+            <div className="flex flex-col text-left leading-none">
+              <span className="text-xs font-bold text-white">Juan Franco</span>
+              <span className="text-[9px] text-emerald-400 font-medium">Desarrollador</span>
+            </div>
           </div>
         </div>
       </header>
