@@ -200,75 +200,75 @@ export function generateSmartPassword(options: PasswordGeneratorOptions): string
 }
 
 // ----------------------------------------------------
-// Password Health & Entropy Evaluator
+// Evaluador de Salud de Contraseñas y Entropía
 // ----------------------------------------------------
 
 export interface PasswordHealth {
   score: number; // 0 - 100
-  rating: "Very Weak" | "Weak" | "Moderate" | "Strong" | "Military Grade";
+  rating: "Muy Débil" | "Débil" | "Aceptable" | "Fuerte" | "Grado Militar";
   color: string;
   feedback: string[];
 }
 
 export function evaluatePasswordHealth(password: string): PasswordHealth {
   if (!password) {
-    return { score: 0, rating: "Very Weak", color: "#ef4444", feedback: ["Password is empty"] };
+    return { score: 0, rating: "Muy Débil", color: "#ef4444", feedback: ["La contraseña está vacía"] };
   }
 
   let score = 0;
   const feedback: string[] = [];
 
-  // Length score
+  // Puntuación por longitud
   if (password.length >= 8) score += 20;
   if (password.length >= 12) score += 20;
   if (password.length >= 16) score += 15;
   if (password.length >= 20) score += 10;
-  if (password.length < 8) feedback.push("Too short (minimum 8 characters recommended)");
+  if (password.length < 8) feedback.push("Demasiado corta (se recomiendan mínimo 8 caracteres)");
 
-  // Variety score
+  // Puntuación por variedad
   if (/[a-z]/.test(password)) score += 10;
-  else feedback.push("Add lowercase letters");
+  else feedback.push("Añade letras minúsculas");
 
   if (/[A-Z]/.test(password)) score += 10;
-  else feedback.push("Add uppercase letters");
+  else feedback.push("Añade letras mayúsculas");
 
   if (/[0-9]/.test(password)) score += 10;
-  else feedback.push("Add numbers");
+  else feedback.push("Añade números");
 
   if (/[^a-zA-Z0-9]/.test(password)) score += 15;
-  else feedback.push("Add symbols or special characters");
+  else feedback.push("Añade símbolos o caracteres especiales");
 
-  // Common patterns penalty
+  // Penalización por patrones simples
   if (/^[a-zA-Z]+$/.test(password) || /^[0-9]+$/.test(password)) {
     score = Math.max(10, score - 20);
-    feedback.push("Avoid only letters or only numbers");
+    feedback.push("Evita usar únicamente letras o únicamente números");
   }
 
   if (/(.)\1{2,}/.test(password)) {
     score = Math.max(10, score - 15);
-    feedback.push("Avoid repeated characters");
+    feedback.push("Evita caracteres repetidos consecutivamente");
   }
 
   score = Math.min(100, Math.max(0, score));
 
-  let rating: PasswordHealth["rating"] = "Weak";
+  let rating: PasswordHealth["rating"] = "Débil";
   let color = "#ef4444";
 
   if (score >= 90) {
-    rating = "Military Grade";
-    color = "#10b981"; // Emerald
+    rating = "Grado Militar";
+    color = "#10b981"; // Esmeralda
   } else if (score >= 70) {
-    rating = "Strong";
-    color = "#06b6d4"; // Cyan
+    rating = "Fuerte";
+    color = "#06b6d4"; // Cian
   } else if (score >= 45) {
-    rating = "Moderate";
-    color = "#f59e0b"; // Amber
+    rating = "Aceptable";
+    color = "#f59e0b"; // Ámbar
   } else if (score >= 25) {
-    rating = "Weak";
-    color = "#f97316"; // Orange
+    rating = "Débil";
+    color = "#f97316"; // Naranja
   } else {
-    rating = "Very Weak";
-    color = "#ef4444"; // Red
+    rating = "Muy Débil";
+    color = "#ef4444"; // Rojo
   }
 
   return { score, rating, color, feedback };

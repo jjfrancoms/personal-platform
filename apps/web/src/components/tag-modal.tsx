@@ -43,7 +43,7 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <span className="w-3 h-3 rounded-full animate-pulse" style={{ backgroundColor: color }} />
-              Create Tag
+              Nueva Etiqueta
             </h2>
             <button
               onClick={onClose}
@@ -56,13 +56,13 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Tag Name
+                Nombre de la Etiqueta
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Next.js"
+                placeholder="ej: Producción o Cuentas"
                 required
                 className="w-full px-4.5 py-2 bg-white/[0.03] border border-white/10 rounded-xl focus:border-blue-500/50 text-white outline-none transition-all placeholder:text-white/30"
               />
@@ -70,7 +70,7 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
 
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
-                Tag Color
+                Color de la Etiqueta
               </label>
               <div className="flex flex-wrap gap-2">
                 {PRESET_COLORS.map((c) => (
@@ -91,10 +91,10 @@ export const TagModal: React.FC<TagModalProps> = ({ isOpen, onClose }) => {
 
             <div className="flex justify-end gap-3 pt-3">
               <GlassButton type="button" variant="ghost" size="sm" onClick={onClose}>
-                Cancel
+                Cancelar
               </GlassButton>
               <GlassButton type="submit" variant="primary" size="sm">
-                Create Tag
+                Crear Etiqueta
               </GlassButton>
             </div>
           </form>

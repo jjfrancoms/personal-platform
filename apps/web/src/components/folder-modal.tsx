@@ -32,7 +32,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose }) => 
           <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <Icon name="folder" className="text-blue-400" />
-              Create Folder
+              Nueva Carpeta
             </h2>
             <button
               onClick={onClose}
@@ -45,13 +45,13 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose }) => 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Folder Name
+                Nombre de la Carpeta
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Minecraft Skins"
+                placeholder="ej: Cuentas Personales"
                 required
                 className="w-full px-4.5 py-2 bg-white/[0.03] border border-white/10 rounded-xl focus:border-blue-500/50 text-white outline-none transition-all placeholder:text-white/30"
               />
@@ -59,10 +59,10 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose }) => 
 
             <div className="flex justify-end gap-3 pt-3">
               <GlassButton type="button" variant="ghost" size="sm" onClick={onClose}>
-                Cancel
+                Cancelar
               </GlassButton>
               <GlassButton type="submit" variant="primary" size="sm">
-                Create Folder
+                Crear Carpeta
               </GlassButton>
             </div>
           </form>

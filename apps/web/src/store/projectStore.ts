@@ -73,26 +73,26 @@ interface ProjectState {
 
 const DEFAULT_TAGS: Tag[] = [
   { id: "tag-1", name: "Minecraft", color: "#22c55e" },
-  { id: "tag-2", name: "3D Graphics", color: "#a855f7" },
-  { id: "tag-3", name: "Utilities", color: "#3b82f6" },
-  { id: "tag-4", name: "Heavy Worker", color: "#ec4899" },
+  { id: "tag-2", name: "Gráficos 3D", color: "#a855f7" },
+  { id: "tag-3", name: "Utilidades", color: "#3b82f6" },
+  { id: "tag-4", name: "Servicio Worker", color: "#ec4899" },
   { id: "tag-5", name: "Java", color: "#f97316" },
   { id: "tag-6", name: "Docker", color: "#06b6d4" },
-  { id: "tag-7", name: "Security & Vault", color: "#10b981" },
+  { id: "tag-7", name: "Seguridad & Cuentas", color: "#10b981" },
 ];
 
 const DEFAULT_FOLDERS: Folder[] = [
-  { id: "folder-1", name: "Gaming Tools", color: "#22c55e" },
-  { id: "folder-2", name: "Media Assets", color: "#ec4899" },
-  { id: "folder-3", name: "Data Processing", color: "#3b82f6" },
-  { id: "folder-4", name: "Security & Vault", color: "#10b981" },
+  { id: "folder-4", name: "Seguridad & Cuentas", color: "#10b981" },
+  { id: "folder-1", name: "Herramientas Gaming", color: "#22c55e" },
+  { id: "folder-2", name: "Archivos Multimedia", color: "#ec4899" },
+  { id: "folder-3", name: "Procesamiento de Datos", color: "#3b82f6" },
 ];
 
 const DEFAULT_PROJECTS: Project[] = [
   {
     id: "proj-vault",
-    name: "CipherVault - Password Manager",
-    description: "Zero-Knowledge password vault, 2FA authenticator tokens, API secrets manager with client-side AES-256-GCM encryption.",
+    name: "Gestor de Contraseñas & Cuentas",
+    description: "Bóveda segura de páginas web, aplicaciones, redes sociales y cuentas con cifrado de grado militar AES-256-GCM y códigos 2FA.",
     color: "#10b981",
     isFavorite: true,
     archived: false,
@@ -103,8 +103,8 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: "proj-1",
-    name: "Minecraft Mod Inspector",
-    description: "Inspect bbmodels, inspect skin PNG assets, JAR mod contents, and read NBT datatrees natively.",
+    name: "Inspector de Mods de Minecraft",
+    description: "Inspecciona archivos bbmodel, texturas de skins PNG, contenido de mods JAR y árboles de datos NBT de forma nativa.",
     color: "#22c55e",
     isFavorite: true,
     archived: false,
@@ -115,8 +115,8 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: "proj-2",
-    name: "3D Asset Converter",
-    description: "Web based batch converter for FBX, OBJ, STL, GLTF, and GLB files with visual 3D preview renderers.",
+    name: "Conversor de Modelos 3D",
+    description: "Conversor por lotes basado en navegador para archivos FBX, OBJ, STL, GLTF y GLB con previsualización tridimensional interactiva.",
     color: "#a855f7",
     isFavorite: true,
     archived: false,
@@ -127,8 +127,8 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: "proj-3",
-    name: "CSV & JSON Parser",
-    description: "Lightweight structured data visualization and mapping utility for rapid format conversions.",
+    name: "Procesador CSV & JSON",
+    description: "Herramienta de visualización de datos estructurados y mapeo rápido para conversiones de formatos al instante.",
     color: "#3b82f6",
     isFavorite: false,
     archived: false,
@@ -139,8 +139,8 @@ const DEFAULT_PROJECTS: Project[] = [
   },
   {
     id: "proj-4",
-    name: "Async Video Compresser",
-    description: "FFmpeg pipeline inside isolated Node.js docker worker to crush video file sizes asynchronously.",
+    name: "Compresor de Video Asíncrono",
+    description: "Pipeline FFmpeg en microservicio worker para comprimir y convertir videos pesados en segundo plano sin bloquear el navegador.",
     color: "#ec4899",
     isFavorite: false,
     archived: false,

@@ -6,7 +6,17 @@ import {
   evaluatePasswordHealth,
 } from "../lib/vault-crypto";
 
-export type VaultCategory = "login" | "card" | "note" | "api_key" | "server";
+export type VaultCategory =
+  | "website"
+  | "app"
+  | "email"
+  | "social"
+  | "streaming"
+  | "api_key"
+  | "note"
+  | "card"
+  | "server"
+  | "login";
 
 export interface CustomField {
   id: string;
@@ -23,20 +33,19 @@ export interface DecryptedVaultItem {
   password?: string;
   websiteUrl?: string;
   notes?: string;
-  totpSecret?: string; // Base32 secret for 2FA
+  totpSecret?: string; // Secreto Base32 para 2FA
   customFields?: CustomField[];
   isFavorite: boolean;
   tags?: string[];
   icon?: string;
   createdAt: string;
   updatedAt: string;
-  // Card specific fields (if category === 'card')
+  // Campos específicos opcionales
   cardNumber?: string;
   cardHolder?: string;
   cardExpMonth?: string;
   cardExpYear?: string;
   cardCvv?: string;
-  // Server specific fields (if category === 'server')
   serverHost?: string;
   serverPort?: string;
   serverPrivateKey?: string;
@@ -68,11 +77,11 @@ interface VaultState {
   searchQuery: string;
   filterTag: string | null;
   
-  // Storage
+  // Almacenamiento
   encryptedRecords: EncryptedVaultRecord[];
   decryptedItems: DecryptedVaultItem[];
   
-  // Actions
+  // Acciones
   unlockVault: (masterPassword: string) => Promise<{ success: boolean; error?: string }>;
   setupMasterPassword: (masterPassword: string) => Promise<void>;
   changeMasterPassword: (oldPass: string, newPass: string) => Promise<boolean>;
@@ -105,53 +114,86 @@ interface VaultState {
   };
 }
 
-// Initial mock records for demonstration when newly setup
+// Cuentas y servicios de demostración iniciales (Webs, Apps, Streaming, etc.)
 const DEMO_ITEMS: Omit<DecryptedVaultItem, "id" | "createdAt" | "updatedAt">[] = [
   {
-    title: "GitHub Personal Platform",
-    category: "login",
-    username: "jjfrancoms",
-    password: "ghp_PersonalSecureKey2026!#",
-    websiteUrl: "https://github.com/jjfrancoms",
-    notes: "Main repository and personal project access credentials.",
+    title: "Google / Gmail",
+    category: "email",
+    username: "juan.personal@gmail.com",
+    password: "G00gle!Secur3_Pass2026#",
+    websiteUrl: "https://accounts.google.com",
+    notes: "Cuenta principal de Google, Gmail, Google Drive y YouTube.",
     totpSecret: "JBSWY3DPEHPK3PXP",
     isFavorite: true,
-    tags: ["Dev", "Code"],
-    icon: "code",
+    tags: ["Personal", "Correo", "Google"],
+    icon: "user",
   },
   {
-    title: "Supabase Cloud Database",
-    category: "api_key",
-    username: "postgres.wyqzvypfjeivjuxqbkwd",
-    password: "Bi4Jlrn2cs26Jwi8",
-    websiteUrl: "https://supabase.com/dashboard/project/wyqzvypfjeivjuxqbkwd",
-    notes: "Production PostgreSQL database connection string and API keys.",
+    title: "Netflix",
+    category: "streaming",
+    username: "juan.personal@gmail.com",
+    password: "N3tflix_Ultra4K!Cinema",
+    websiteUrl: "https://www.netflix.com",
+    notes: "Perfil principal y suscripción mensual compartida.",
     isFavorite: true,
-    tags: ["Database", "Production"],
-    icon: "database",
+    tags: ["Streaming", "Entretenimiento"],
+    icon: "dashboard",
   },
   {
-    title: "Cloudflare R2 Object Storage",
-    category: "api_key",
-    username: "3ee93f08316611e843d4b0ae0edb01ae",
-    password: "4ec1093a6802fb16327464018d83be9baa0d59d5601ca571d2d38aed7b2dfc07",
-    websiteUrl: "https://dash.cloudflare.com",
-    notes: "R2 Access Keys for asset storage pipelines.",
+    title: "Spotify Música",
+    category: "streaming",
+    username: "juan.musica@gmail.com",
+    password: "Sp0tify!RockPlay2026",
+    websiteUrl: "https://open.spotify.com",
+    notes: "Plan familiar y listas de reproducción favoritas.",
     isFavorite: false,
-    tags: ["Cloud", "Storage"],
+    tags: ["Música", "App"],
     icon: "cloud",
   },
   {
-    title: "Primary Development Server",
-    category: "server",
-    username: "root",
-    password: "HyperSecureLinuxSshRootPass99!",
-    serverHost: "192.168.1.100",
-    serverPort: "22",
-    notes: "Local worker node host credentials.",
+    title: "GitHub - Repositorios",
+    category: "api_key",
+    username: "jjfrancoms",
+    password: "token_seguro_personal_2026_demo",
+    websiteUrl: "https://github.com/jjfrancoms",
+    notes: "Token de acceso y cuenta de desarrollador principal.",
+    totpSecret: "HXDMVJECJJWSRB3H",
+    isFavorite: true,
+    tags: ["Desarrollo", "Código"],
+    icon: "code",
+  },
+  {
+    title: "Discord App",
+    category: "app",
+    username: "juan_dev#2026",
+    password: "D1scord!VoiceGamer99$",
+    websiteUrl: "https://discord.com/login",
+    notes: "Comunidades de programación y servidores de amigos.",
     isFavorite: false,
-    tags: ["Infrastructure"],
+    tags: ["Gaming", "Comunidad"],
     icon: "terminal",
+  },
+  {
+    title: "Instagram",
+    category: "social",
+    username: "@juan_oficial",
+    password: "Insta!PhotoMoments2026",
+    websiteUrl: "https://www.instagram.com",
+    notes: "Cuenta personal de redes sociales y fotografías.",
+    isFavorite: false,
+    tags: ["Social", "Fotos"],
+    icon: "user",
+  },
+  {
+    title: "Steam Gaming",
+    category: "app",
+    username: "juan_gamer2026",
+    password: "St3am!ValveMasterKey88*",
+    websiteUrl: "https://store.steampowered.com",
+    notes: "Biblioteca de juegos de PC y logros.",
+    isFavorite: false,
+    tags: ["Juegos", "PC"],
+    icon: "project",
   }
 ];
 

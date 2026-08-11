@@ -6,7 +6,6 @@ import {
   useVaultStore,
   VaultCategory,
   DecryptedVaultItem,
-  CustomField,
 } from "../../store/vaultStore";
 import {
   generateSmartPassword,
@@ -24,14 +23,32 @@ const CATEGORY_CONFIG: Record<
   VaultCategory | "all" | "favorites",
   { label: string; icon: IconName; color: string }
 > = {
-  all: { label: "All Items", icon: "key", color: "#38bdf8" },
-  login: { label: "Logins & Web", icon: "user", color: "#60a5fa" },
-  card: { label: "Credit Cards", icon: "credit-card", color: "#f472b6" },
-  note: { label: "Secure Notes", icon: "edit", color: "#fbbf24" },
-  api_key: { label: "API Keys & Secrets", icon: "code", color: "#34d399" },
-  server: { label: "Servers & SSH", icon: "terminal", color: "#a78bfa" },
-  favorites: { label: "Favorites", icon: "star-filled", color: "#fbbf24" },
+  all: { label: "Todos los elementos", icon: "key", color: "#38bdf8" },
+  website: { label: "Páginas & Sitios Web", icon: "cloud", color: "#60a5fa" },
+  app: { label: "Aplicaciones & Móvil", icon: "terminal", color: "#a78bfa" },
+  email: { label: "Cuentas de Correo", icon: "user", color: "#34d399" },
+  social: { label: "Redes Sociales", icon: "star", color: "#f472b6" },
+  streaming: { label: "Streaming & Música", icon: "dashboard", color: "#fb923c" },
+  api_key: { label: "Claves API & Dev", icon: "code", color: "#2dd4bf" },
+  note: { label: "Notas Seguras", icon: "edit", color: "#fbbf24" },
+  card: { label: "Tarjetas", icon: "credit-card", color: "#f43f5e" },
+  server: { label: "Servidores & SSH", icon: "terminal", color: "#818cf8" },
+  login: { label: "Inicios de Sesión", icon: "user", color: "#38bdf8" },
+  favorites: { label: "Favoritos", icon: "star-filled", color: "#fbbf24" },
 };
+
+// Plantillas rápidas para agregar servicios populares con 1 clic
+const POPULAR_TEMPLATES = [
+  { name: "Google / Gmail", category: "email" as VaultCategory, url: "https://accounts.google.com", icon: "user" },
+  { name: "Netflix", category: "streaming" as VaultCategory, url: "https://www.netflix.com", icon: "dashboard" },
+  { name: "Spotify", category: "streaming" as VaultCategory, url: "https://open.spotify.com", icon: "cloud" },
+  { name: "Discord", category: "app" as VaultCategory, url: "https://discord.com", icon: "terminal" },
+  { name: "Instagram", category: "social" as VaultCategory, url: "https://www.instagram.com", icon: "user" },
+  { name: "GitHub", category: "api_key" as VaultCategory, url: "https://github.com", icon: "code" },
+  { name: "Steam", category: "app" as VaultCategory, url: "https://store.steampowered.com", icon: "project" },
+  { name: "Amazon", category: "website" as VaultCategory, url: "https://www.amazon.com", icon: "cloud" },
+  { name: "WhatsApp Web", category: "app" as VaultCategory, url: "https://web.whatsapp.com", icon: "terminal" },
+];
 
 export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   const {
@@ -55,7 +72,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
     importVaultBackup,
   } = useVaultStore();
 
-  // Unlock state
+  // Estados de desbloqueo
   const [masterPasswordInput, setMasterPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
   const [unlockError, setUnlockError] = useState("");
@@ -63,13 +80,13 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   const [showMasterPass, setShowMasterPass] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Active item editing state
+  // Estados de edición de item
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<DecryptedVaultItem>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Password Generator Modal state
+  // Estados del Generador de Contraseñas
   const [isGenOpen, setIsGenOpen] = useState(false);
   const [genOptions, setGenOptions] = useState<PasswordGeneratorOptions>({
     length: 18,
@@ -83,24 +100,25 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   });
   const [generatedPassword, setGeneratedPassword] = useState("");
 
-  // Live TOTP state
+  // Estado de TOTP (2FA) en vivo
   const [totpCode, setTotpCode] = useState<string>("------");
   const [totpRemaining, setTotpRemaining] = useState<number>(30);
 
-  // Security audit stats
+  // Auditoría de salud de seguridad
   const audit = useMemo(() => getSecurityAudit(), [decryptedItems, isUnlocked]);
 
-  // Active selected item
+  // Item seleccionado actualmente
   const selectedItem = useMemo(() => {
     return decryptedItems.find((i) => i.id === selectedItemId) || null;
   }, [decryptedItems, selectedItemId]);
 
-  // Filtered items
+  // Items filtrados
   const filteredItems = useMemo(() => {
     return decryptedItems.filter((item) => {
       if (selectedCategory === "favorites" && !item.isFavorite) return false;
-      if (selectedCategory !== "all" && selectedCategory !== "favorites" && item.category !== selectedCategory) {
-        return false;
+      if (selectedCategory !== "all" && selectedCategory !== "favorites") {
+        if (selectedCategory === "website" && item.category === "login") return true;
+        if (item.category !== selectedCategory) return false;
       }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -114,14 +132,14 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
     });
   }, [decryptedItems, selectedCategory, searchQuery]);
 
-  // Generate password initially on generator open
+  // Generar contraseña al abrir el generador
   useEffect(() => {
     if (isGenOpen) {
       setGeneratedPassword(generateSmartPassword(genOptions));
     }
   }, [isGenOpen, genOptions]);
 
-  // Live TOTP countdown effect
+  // Temporizador y cálculo de TOTP (2FA)
   useEffect(() => {
     if (!selectedItem?.totpSecret || !isUnlocked) return;
 
@@ -146,7 +164,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // ----------------------------------------------------
-  // Handlers
+  // Controladores de eventos
   // ----------------------------------------------------
 
   const handleUnlock = async (e: React.FormEvent) => {
@@ -157,12 +175,12 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
 
     if (!hasMasterPasswordSet || isSettingUp) {
       if (masterPasswordInput !== confirmPasswordInput) {
-        setUnlockError("Master passwords do not match.");
+        setUnlockError("Las contraseñas maestras no coinciden.");
         setIsSubmitting(false);
         return;
       }
       if (masterPasswordInput.length < 6) {
-        setUnlockError("Master password must be at least 6 characters.");
+        setUnlockError("La contraseña maestra debe tener al menos 6 caracteres.");
         setIsSubmitting(false);
         return;
       }
@@ -174,7 +192,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
       const res = await unlockVault(masterPasswordInput);
       setIsSubmitting(false);
       if (!res.success) {
-        setUnlockError(res.error || "Incorrect master password.");
+        setUnlockError(res.error || "Contraseña maestra incorrecta.");
       }
     }
   };
@@ -186,9 +204,9 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
     setTimeout(() => setCopiedField(null), 2500);
   };
 
-  const startCreateNewItem = (category: VaultCategory = "login") => {
+  const startCreateNewItem = (category: VaultCategory = "website") => {
     const newItem: Partial<DecryptedVaultItem> = {
-      title: "New " + CATEGORY_CONFIG[category].label,
+      title: "Nueva Cuenta",
       category,
       username: "",
       password: generateSmartPassword({ length: 18, useNumbers: true, useSymbols: true, useUppercase: true, useLowercase: true }),
@@ -202,6 +220,16 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
     setIsEditing(true);
   };
 
+  const applyTemplate = (template: typeof POPULAR_TEMPLATES[0]) => {
+    setEditFormData({
+      ...editFormData,
+      title: template.name,
+      category: template.category,
+      websiteUrl: template.url,
+      icon: template.icon,
+    });
+  };
+
   const handleSaveItem = async () => {
     if (!editFormData.title?.trim()) return;
     const currentPass = masterPasswordInput || "vault_master_key";
@@ -209,7 +237,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
       {
         id: editFormData.id,
         title: editFormData.title.trim(),
-        category: editFormData.category || "login",
+        category: editFormData.category || "website",
         username: editFormData.username || "",
         password: editFormData.password || "",
         websiteUrl: editFormData.websiteUrl || "",
@@ -233,7 +261,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   };
 
   // ----------------------------------------------------
-  // UNLOCK / SETUP SCREEN
+  // PANTALLA DE DESBLOQUEO / INICIALIZACIÓN
   // ----------------------------------------------------
   if (!isUnlocked) {
     const isNewVault = !hasMasterPasswordSet || isSettingUp;
@@ -241,11 +269,11 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fade-in">
         <div className="relative w-full max-w-md p-8 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/90 shadow-2xl shadow-cyan-950/50 text-white">
-          {/* Cyber ambient glow */}
+          {/* Resplandor ambiental */}
           <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Close button */}
+          {/* Botón Cerrar */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full bg-white/5 hover:bg-white/10 transition-colors"
@@ -253,7 +281,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             <Icon name="close" size={16} />
           </button>
 
-          {/* Vault Icon & Title */}
+          {/* Icono y Título */}
           <div className="flex flex-col items-center text-center mb-6">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 to-emerald-500 p-0.5 shadow-lg shadow-cyan-500/30 mb-4 flex items-center justify-center">
               <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
@@ -263,25 +291,25 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
               CipherVault
             </h2>
-            <p className="text-xs text-slate-400 mt-1 max-w-xs">
+            <p className="text-xs text-slate-400 mt-1 max-w-xs leading-relaxed">
               {isNewVault
-                ? "Set up your Zero-Knowledge Master Password. Your data will be encrypted with AES-256-GCM."
-                : "Enter your Master Password to decrypt your credentials and secure tokens."}
+                ? "Configura tu Contraseña Maestra. Tus cuentas y claves se cifrarán localmente con AES-256-GCM."
+                : "Ingresa tu Contraseña Maestra para descifrar tus cuentas, páginas web y aplicaciones."}
             </p>
           </div>
 
-          {/* Form */}
+          {/* Formulario */}
           <form onSubmit={handleUnlock} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                {isNewVault ? "Create Master Password" : "Master Password"}
+                {isNewVault ? "Crear Contraseña Maestra" : "Contraseña Maestra"}
               </label>
               <div className="relative">
                 <input
                   type={showMasterPass ? "text" : "password"}
                   value={masterPasswordInput}
                   onChange={(e) => setMasterPasswordInput(e.target.value)}
-                  placeholder="Enter Master Password..."
+                  placeholder="Ingresa tu contraseña maestra..."
                   autoFocus
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm transition-all"
                 />
@@ -301,7 +329,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     return (
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-400">Strength:</span>
+                          <span className="text-slate-400">Seguridad:</span>
                           <span style={{ color: h.color }} className="font-semibold">{h.rating} ({h.score}%)</span>
                         </div>
                         <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
@@ -317,13 +345,13 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             {isNewVault && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Confirm Master Password
+                  Confirmar Contraseña Maestra
                 </label>
                 <input
                   type={showMasterPass ? "text" : "password"}
                   value={confirmPasswordInput}
                   onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                  placeholder="Confirm Master Password..."
+                  placeholder="Vuelve a escribir la contraseña..."
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm transition-all"
                 />
               </div>
@@ -342,11 +370,11 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/25 hover:opacity-95 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <Icon name={isNewVault ? "shield" : "unlock"} size={16} />
-              <span>{isSubmitting ? "Decrypting Vault..." : isNewVault ? "Initialize Secure Vault" : "Unlock Vault"}</span>
+              <span>{isSubmitting ? "Descifrando bóveda..." : isNewVault ? "Inicializar Bóveda Segura" : "Desbloquear Bóveda"}</span>
             </button>
           </form>
 
-          {/* Quick Demo Preset */}
+          {/* Botón rápido de demostración */}
           {!hasMasterPasswordSet && (
             <div className="mt-4 pt-4 border-t border-white/5 text-center">
               <button
@@ -357,7 +385,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                 }}
                 className="text-[11px] text-cyan-400/80 hover:text-cyan-300 underline underline-offset-2"
               >
-                Use Quick Demo Password (AdminVault2026!)
+                Usar Contraseña Rápida de Prueba (AdminVault2026!)
               </button>
             </div>
           )}
@@ -367,13 +395,13 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   }
 
   // ----------------------------------------------------
-  // UNLOCKED MAIN VAULT VIEW
+  // VISTA PRINCIPAL (BÓVEDA DESBLOQUEADA)
   // ----------------------------------------------------
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/85 backdrop-blur-2xl animate-fade-in text-white">
       <div className="relative w-full max-w-7xl h-[90vh] flex flex-col rounded-3xl border border-white/10 bg-slate-950/95 shadow-2xl shadow-cyan-950/40 overflow-hidden">
         
-        {/* TOP BAR */}
+        {/* BARRA SUPERIOR */}
         <header className="px-6 py-4 border-b border-white/10 bg-white/[0.02] flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-0.5 flex items-center justify-center shadow-md shadow-cyan-500/20">
@@ -386,20 +414,20 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                 <h1 className="text-lg font-bold tracking-tight text-white">CipherVault</h1>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  AES-256-GCM Active
+                  Cifrado AES-256 Activo
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Zero-Knowledge Secrets & Password Manager</p>
+              <p className="text-xs text-slate-400">Gestor Seguro de Contraseñas, Sitios Web y Aplicaciones</p>
             </div>
           </div>
 
-          {/* Security Score Widget */}
+          {/* Puntuación de Salud de Seguridad */}
           <div className="hidden md:flex items-center gap-6 px-4 py-1.5 rounded-2xl bg-white/5 border border-white/5">
             <div className="flex items-center gap-2">
               <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Security Health</div>
+                <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Salud de Seguridad</div>
                 <div className="text-sm font-bold" style={{ color: audit.overallScore >= 80 ? "#10b981" : "#f59e0b" }}>
-                  {audit.overallScore}% Protected
+                  {audit.overallScore}% Protegido
                 </div>
               </div>
               <div className="w-8 h-8 rounded-full border-2 border-white/10 flex items-center justify-center font-mono text-xs font-bold" style={{ borderColor: audit.overallScore >= 80 ? "#10b981" : "#f59e0b" }}>
@@ -409,32 +437,32 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
 
             {audit.weakCount > 0 && (
               <span className="text-[11px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-                ⚠️ {audit.weakCount} weak passwords
+                ⚠️ {audit.weakCount} débiles
               </span>
             )}
           </div>
 
-          {/* Action Buttons */}
+          {/* Botones de acción */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsGenOpen(true)}
               className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-cyan-300 hover:text-cyan-200 transition-all flex items-center gap-1.5"
             >
               <Icon name="refresh" size={14} />
-              <span className="hidden sm:inline">Generator</span>
+              <span className="hidden sm:inline">Generador</span>
             </button>
 
             <button
-              onClick={() => startCreateNewItem("login")}
+              onClick={() => startCreateNewItem("website")}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:opacity-95 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 transition-all flex items-center gap-1.5"
             >
               <Icon name="plus" size={14} />
-              <span>New Item</span>
+              <span>+ Guardar Contraseña</span>
             </button>
 
             <button
               onClick={lockVault}
-              title="Lock Vault Session"
+              title="Bloquear Bóveda"
               className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 border border-white/10 transition-all"
             >
               <Icon name="lock" size={16} />
@@ -449,21 +477,23 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
           </div>
         </header>
 
-        {/* WORKSPACE BODY */}
+        {/* CUERPO DEL ESPACIO DE TRABAJO */}
         <div className="flex-1 flex overflow-hidden">
           
-          {/* LEFT SIDEBAR: Categories & Security Center */}
+          {/* PANEL LATERAL IZQUIERDO: Categorías de Sitios & Apps */}
           <aside className="w-64 border-r border-white/10 bg-black/30 p-4 flex flex-col justify-between shrink-0 hidden lg:flex">
-            <div className="space-y-6">
-              {/* Category list */}
+            <div className="space-y-5">
+              {/* Lista de Categorías */}
               <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 px-3 mb-2">Vault Folders</div>
-                {(["all", "login", "card", "note", "api_key", "server", "favorites"] as const).map((cat) => {
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 px-3 mb-2">Categorías</div>
+                {(["all", "website", "app", "email", "social", "streaming", "api_key", "note", "favorites"] as const).map((cat) => {
                   const conf = CATEGORY_CONFIG[cat];
                   const count = cat === "all"
                     ? decryptedItems.length
                     : cat === "favorites"
                     ? decryptedItems.filter((i) => i.isFavorite).length
+                    : cat === "website"
+                    ? decryptedItems.filter((i) => i.category === "website" || i.category === "login").length
                     : decryptedItems.filter((i) => i.category === cat).length;
                   const isActive = selectedCategory === cat;
 
@@ -489,12 +519,12 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                 })}
               </div>
 
-              {/* Security Health Box */}
+              {/* Resumen de Seguridad */}
               <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300 flex items-center gap-1.5">
                     <Icon name="shield" size={13} className="text-cyan-400" />
-                    Audit Summary
+                    Estado del Vault
                   </span>
                   <span className="text-emerald-400 font-mono">{audit.overallScore}%</span>
                 </div>
@@ -506,18 +536,18 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="text-[11px] text-slate-400 space-y-1">
                   <div className="flex justify-between">
-                    <span>2FA Protected</span>
-                    <span className="text-cyan-300 font-mono">{audit.totpCount} items</span>
+                    <span>Protegidas con 2FA</span>
+                    <span className="text-cyan-300 font-mono">{audit.totpCount} cuentas</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Reused Passwords</span>
-                    <span className="text-amber-300 font-mono">{audit.reusedCount} items</span>
+                    <span>Claves Reutilizadas</span>
+                    <span className="text-amber-300 font-mono">{audit.reusedCount}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Backup / Export Actions */}
+            {/* Acciones de Copia de Seguridad */}
             <div className="pt-4 border-t border-white/5 flex gap-2">
               <button
                 onClick={async () => {
@@ -526,17 +556,17 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `ciphervault-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                  a.download = `ciphervault-respaldo-${new Date().toISOString().slice(0, 10)}.json`;
                   a.click();
                 }}
                 className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1"
               >
                 <Icon name="download" size={12} />
-                Export
+                Exportar
               </button>
               <label className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1 cursor-pointer">
                 <Icon name="upload" size={12} />
-                Import
+                Importar
                 <input
                   type="file"
                   accept=".json"
@@ -552,9 +582,9 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             </div>
           </aside>
 
-          {/* MIDDLE COLUMN: Search & Item List */}
+          {/* COLUMNA CENTRAL: Búsqueda y Lista de Cuentas */}
           <section className="w-full sm:w-80 lg:w-96 border-r border-white/10 flex flex-col shrink-0 bg-slate-950/50">
-            {/* Search header */}
+            {/* Cabecera de Búsqueda */}
             <div className="p-3 border-b border-white/10">
               <div className="relative">
                 <Icon name="search" size={15} className="absolute left-3 top-3 text-slate-500" />
@@ -562,24 +592,23 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search secrets, usernames, tags..."
+                  placeholder="Buscar cuentas, páginas, correos..."
                   className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
             </div>
 
-            {/* List */}
+            {/* Lista de Elementos */}
             <div className="flex-1 overflow-y-auto divide-y divide-white/5 p-2 space-y-1">
               {filteredItems.length === 0 ? (
                 <div className="py-12 text-center text-slate-500 text-xs">
                   <Icon name="key" size={28} className="mx-auto mb-2 opacity-40" />
-                  No credentials found in this folder.
+                  No hay contraseñas guardadas en esta categoría.
                 </div>
               ) : (
                 filteredItems.map((item) => {
-                  const conf = CATEGORY_CONFIG[item.category] || CATEGORY_CONFIG.login;
+                  const conf = CATEGORY_CONFIG[item.category] || CATEGORY_CONFIG.website;
                   const isSelected = selectedItemId === item.id;
-                  const health = item.password ? evaluatePasswordHealth(item.password) : null;
 
                   return (
                     <div
@@ -609,12 +638,12 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                             {item.isFavorite && <Icon name="star-filled" size={11} className="text-amber-400 shrink-0" />}
                           </div>
                           <div className="text-[11px] text-slate-400 truncate">
-                            {item.username || item.websiteUrl || (item.category === "card" ? `Card ending in ${item.cardNumber?.slice(-4) || "••••"}` : "No username")}
+                            {item.username || item.websiteUrl || "Sin usuario"}
                           </div>
                         </div>
                       </div>
 
-                      {/* Quick copy password on hover */}
+                      {/* Botón rápido de copia al pasar el mouse */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         {item.totpSecret && (
                           <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300">2FA</span>
@@ -625,7 +654,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                             e.stopPropagation();
                             handleCopy(item.password, item.id);
                           }}
-                          title="Copy Password"
+                          title="Copiar Contraseña"
                           className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300"
                         >
                           <Icon name={copiedField === item.id ? "check" : "copy"} size={13} />
@@ -638,98 +667,121 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             </div>
           </section>
 
-          {/* RIGHT COLUMN: Detail & Editor View */}
+          {/* COLUMNA DERECHA: Detalle y Editor de Cuenta */}
           <main className="flex-1 bg-black/20 overflow-y-auto p-6 flex flex-col">
             {isEditing ? (
-              /* EDIT / CREATE FORM */
+              /* FORMULARIO DE EDICIÓN O NUEVA CUENTA */
               <div className="max-w-2xl w-full mx-auto space-y-6 animate-fade-in">
                 <div className="flex items-center justify-between pb-4 border-b border-white/10">
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <Icon name="edit" size={18} className="text-cyan-400" />
-                    {editFormData.id ? "Edit Secret" : "New Secret Item"}
+                    {editFormData.id ? "Editar Cuenta" : "Guardar Nueva Contraseña"}
                   </h2>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setIsEditing(false)}
                       className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-400"
                     >
-                      Cancel
+                      Cancelar
                     </button>
                     <button
                       onClick={handleSaveItem}
                       className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20"
                     >
-                      Save Secret
+                      Guardar Datos
                     </button>
                   </div>
                 </div>
 
+                {/* Plantillas Rápidas si es nuevo */}
+                {!editFormData.id && (
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-2">
+                      ⚡ Plantillas Rápidas (Autocompletar servicio):
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {POPULAR_TEMPLATES.map((tmpl) => (
+                        <button
+                          key={tmpl.name}
+                          type="button"
+                          onClick={() => applyTemplate(tmpl)}
+                          className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-300 text-[11px] font-medium text-slate-300 border border-white/5 transition-all"
+                        >
+                          + {tmpl.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-4">
-                  {/* Category & Title */}
+                  {/* Categoría y Nombre de la Página/App */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Category</label>
+                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Categoría</label>
                       <select
-                        value={editFormData.category || "login"}
+                        value={editFormData.category || "website"}
                         onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value as VaultCategory })}
                         className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
                       >
-                        <option value="login" className="bg-slate-900">Login & Web</option>
-                        <option value="card" className="bg-slate-900">Credit Card</option>
-                        <option value="api_key" className="bg-slate-900">API Key / Secret</option>
-                        <option value="server" className="bg-slate-900">Server / SSH</option>
-                        <option value="note" className="bg-slate-900">Secure Note</option>
+                        <option value="website" className="bg-slate-900">Páginas & Sitios Web</option>
+                        <option value="app" className="bg-slate-900">Aplicaciones & Móvil</option>
+                        <option value="email" className="bg-slate-900">Cuentas de Correo</option>
+                        <option value="social" className="bg-slate-900">Redes Sociales</option>
+                        <option value="streaming" className="bg-slate-900">Streaming & Música</option>
+                        <option value="api_key" className="bg-slate-900">Claves API & Dev</option>
+                        <option value="note" className="bg-slate-900">Notas Seguras</option>
                       </select>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Title / Service Name</label>
+                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Nombre de la Página o App</label>
                       <input
                         type="text"
                         value={editFormData.title || ""}
                         onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
-                        placeholder="e.g. GitHub, Supabase DB, AWS Key..."
+                        placeholder="ej: Google, Netflix, Spotify, Banco..."
                         className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
                       />
                     </div>
                   </div>
 
-                  {/* Username & Password */}
+                  {/* Usuario/Email y Contraseña */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Username / Email / Access Key</label>
+                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Usuario / Correo Electrónico</label>
                       <input
                         type="text"
                         value={editFormData.username || ""}
                         onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
-                        placeholder="username or email"
+                        placeholder="tu_correo@gmail.com o usuario"
                         className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500"
                       />
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Password / Secret</label>
+                        <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Contraseña</label>
                         <button
                           type="button"
                           onClick={() => setEditFormData({ ...editFormData, password: generateSmartPassword({ length: 20, useNumbers: true, useSymbols: true }) })}
                           className="text-[10px] text-cyan-400 hover:text-cyan-300 font-semibold"
                         >
-                          Generate
+                          Generar Segura
                         </button>
                       </div>
                       <input
                         type="text"
                         value={editFormData.password || ""}
                         onChange={(e) => setEditFormData({ ...editFormData, password: e.target.value })}
-                        placeholder="Enter secret password..."
+                        placeholder="Escribe o genera la contraseña..."
                         className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
                       />
                     </div>
                   </div>
 
-                  {/* URL & 2FA Secret */}
+                  {/* Enlace Web & Clave 2FA */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Website URL</label>
+                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Enlace / URL de la Página Web</label>
                       <input
                         type="url"
                         value={editFormData.websiteUrl || ""}
@@ -739,34 +791,34 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">2FA / TOTP Secret Key (Base32)</label>
+                      <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Secreto 2FA / TOTP (Opcional)</label>
                       <input
                         type="text"
                         value={editFormData.totpSecret || ""}
                         onChange={(e) => setEditFormData({ ...editFormData, totpSecret: e.target.value })}
-                        placeholder="e.g. JBSWY3DPEHPK3PXP"
+                        placeholder="ej: JBSWY3DPEHPK3PXP"
                         className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500 font-mono uppercase"
                       />
                     </div>
                   </div>
 
-                  {/* Secure Notes */}
+                  {/* Notas Seguras */}
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Encrypted Notes & Details</label>
+                    <label className="block text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Notas y Detalles Protegidos</label>
                     <textarea
                       rows={4}
                       value={editFormData.notes || ""}
                       onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
-                      placeholder="Add encrypted notes, recovery keys, security questions..."
+                      placeholder="Añade notas privadas, respuestas de seguridad, códigos de recuperación..."
                       className="w-full p-3.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500 leading-relaxed resize-none"
                     />
                   </div>
                 </div>
               </div>
             ) : selectedItem ? (
-              /* ITEM DETAIL VIEW */
+              /* VISTA DE DETALLE DE LA CUENTA */
               <div className="max-w-2xl w-full mx-auto space-y-6 animate-fade-in">
-                {/* Header */}
+                {/* Cabecera */}
                 <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
                   <div className="flex items-center gap-3.5">
                     <div
@@ -784,7 +836,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-white">{selectedItem.title}</h2>
-                      <span className="text-xs text-slate-400 capitalize">{CATEGORY_CONFIG[selectedItem.category]?.label}</span>
+                      <span className="text-xs text-slate-400">{CATEGORY_CONFIG[selectedItem.category]?.label}</span>
                     </div>
                   </div>
 
@@ -794,6 +846,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                       className={`p-2 rounded-xl border border-white/10 transition-all ${
                         selectedItem.isFavorite ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-white/5 text-slate-400 hover:text-white"
                       }`}
+                      title={selectedItem.isFavorite ? "Quitar de favoritos" : "Marcar como favorito"}
                     >
                       <Icon name={selectedItem.isFavorite ? "star-filled" : "star"} size={16} />
                     </button>
@@ -805,24 +858,25 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                       className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5"
                     >
                       <Icon name="edit" size={14} />
-                      <span>Edit</span>
+                      <span>Editar</span>
                     </button>
                     <button
                       onClick={() => deleteItem(selectedItem.id)}
                       className="p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-white/10"
+                      title="Eliminar cuenta"
                     >
                       <Icon name="trash" size={16} />
                     </button>
                   </div>
                 </div>
 
-                {/* Main Fields Cards */}
+                {/* Tarjetas de Datos Principales */}
                 <div className="space-y-3">
-                  {/* Username Card */}
+                  {/* Tarjeta Usuario / Email */}
                   {selectedItem.username && (
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between gap-4">
                       <div>
-                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Username / Email</div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Usuario / Correo Electrónico</div>
                         <div className="text-sm font-medium text-white font-mono mt-0.5">{selectedItem.username}</div>
                       </div>
                       <button
@@ -830,17 +884,17 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                         className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5"
                       >
                         <Icon name={copiedField === "user" ? "check" : "copy"} size={13} />
-                        <span>{copiedField === "user" ? "Copied!" : "Copy"}</span>
+                        <span>{copiedField === "user" ? "¡Copiado!" : "Copiar"}</span>
                       </button>
                     </div>
                   )}
 
-                  {/* Password Card */}
+                  {/* Tarjeta Contraseña */}
                   {selectedItem.password && (
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2.5">
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Password / Secret</div>
+                          <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Contraseña</div>
                           <div className="text-sm font-bold text-cyan-300 font-mono mt-0.5 tracking-wider">
                             {showPassword ? selectedItem.password : "••••••••••••••••••••"}
                           </div>
@@ -849,6 +903,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                           <button
                             onClick={() => setShowPassword(!showPassword)}
                             className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white"
+                            title={showPassword ? "Ocultar" : "Mostrar contraseña"}
                           >
                             <Icon name={showPassword ? "eye-off" : "eye"} size={14} />
                           </button>
@@ -857,17 +912,17 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                             className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-1.5"
                           >
                             <Icon name={copiedField === "pass" ? "check" : "copy"} size={13} />
-                            <span>{copiedField === "pass" ? "Copied!" : "Copy Password"}</span>
+                            <span>{copiedField === "pass" ? "¡Copiada!" : "Copiar Contraseña"}</span>
                           </button>
                         </div>
                       </div>
 
-                      {/* Password Health Meter */}
+                      {/* Medidor de Seguridad de la Contraseña */}
                       {(() => {
                         const h = evaluatePasswordHealth(selectedItem.password);
                         return (
                           <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                            <span className="text-slate-400 text-[11px]">Password Security:</span>
+                            <span className="text-slate-400 text-[11px]">Nivel de Seguridad:</span>
                             <span className="font-semibold" style={{ color: h.color }}>{h.rating} ({h.score}%)</span>
                           </div>
                         );
@@ -875,7 +930,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   )}
 
-                  {/* Live 2FA / TOTP Authenticator Card */}
+                  {/* Tarjeta de Código 2FA / TOTP en Tiempo Real */}
                   {selectedItem.totpSecret && (
                     <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/40 to-slate-900/60 border border-cyan-500/30 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3.5">
@@ -884,7 +939,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div>
                           <div className="text-[10px] uppercase font-semibold text-cyan-400 tracking-wider flex items-center gap-1">
-                            <span>2FA One-Time Code</span>
+                            <span>Código de Verificación 2FA</span>
                             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
                           </div>
                           <div className="text-2xl font-black tracking-widest text-white font-mono mt-0.5">
@@ -898,34 +953,34 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                         className="px-3.5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 hover:opacity-90 flex items-center gap-1.5"
                       >
                         <Icon name={copiedField === "totp" ? "check" : "copy"} size={13} />
-                        <span>{copiedField === "totp" ? "Copied!" : "Copy Code"}</span>
+                        <span>{copiedField === "totp" ? "¡Copiado!" : "Copiar Código"}</span>
                       </button>
                     </div>
                   )}
 
-                  {/* Website URL Card */}
+                  {/* Tarjeta Enlace Web con Apertura Directa */}
                   {selectedItem.websiteUrl && (
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between gap-4">
                       <div className="truncate">
-                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Website / Service URL</div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Sitio Web / Aplicación</div>
                         <div className="text-xs font-medium text-slate-300 truncate mt-0.5">{selectedItem.websiteUrl}</div>
                       </div>
                       <a
                         href={selectedItem.websiteUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-cyan-400 flex items-center gap-1 shrink-0"
+                        className="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-semibold text-cyan-400 flex items-center gap-1.5 shrink-0 transition-colors"
                       >
-                        <span>Launch</span>
+                        <span>Abrir Sitio</span>
                         <Icon name="external-link" size={12} />
                       </a>
                     </div>
                   )}
 
-                  {/* Notes Card */}
+                  {/* Notas Seguras */}
                   {selectedItem.notes && (
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1.5">
-                      <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Encrypted Notes</div>
+                      <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Notas Privadas</div>
                       <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{selectedItem.notes}</p>
                     </div>
                   )}
@@ -934,45 +989,45 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-xs text-center">
                 <Icon name="shield" size={40} className="opacity-30 mb-3" />
-                <p className="font-semibold text-slate-400">No secret selected</p>
-                <p className="text-slate-500 max-w-xs mt-1">Select an item from the list or create a new password to inspect details.</p>
+                <p className="font-semibold text-slate-400">Selecciona una cuenta</p>
+                <p className="text-slate-500 max-w-xs mt-1">Selecciona una página web o aplicación de la lista, o haz clic en "+ Guardar Contraseña" para registrar una nueva.</p>
               </div>
             )}
           </main>
         </div>
       </div>
 
-      {/* PASSWORD GENERATOR MODAL */}
+      {/* MODAL DEL GENERADOR DE CONTRASEÑAS */}
       {isGenOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div className="w-full max-w-md p-6 rounded-3xl border border-cyan-500/30 bg-slate-950 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Icon name="refresh" size={16} className="text-cyan-400" />
-                Password Generator
+                Generador de Contraseñas Seguras
               </h3>
               <button onClick={() => setIsGenOpen(false)} className="text-slate-400 hover:text-white">
                 <Icon name="close" size={16} />
               </button>
             </div>
 
-            {/* Generated Output */}
+            {/* Salida Generada */}
             <div className="p-4 rounded-2xl bg-white/5 border border-cyan-500/40 flex items-center justify-between gap-3">
               <span className="text-base font-bold font-mono text-cyan-300 truncate select-all">{generatedPassword}</span>
               <button
                 onClick={() => handleCopy(generatedPassword, "gen")}
                 className="px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs shrink-0"
               >
-                {copiedField === "gen" ? "Copied!" : "Copy"}
+                {copiedField === "gen" ? "¡Copiada!" : "Copiar"}
               </button>
             </div>
 
-            {/* Controls */}
+            {/* Controles */}
             <div className="space-y-3 text-xs">
               <div>
                 <div className="flex justify-between text-slate-300 mb-1">
-                  <span>Length:</span>
-                  <span className="font-mono font-bold text-cyan-400">{genOptions.length} characters</span>
+                  <span>Longitud:</span>
+                  <span className="font-mono font-bold text-cyan-400">{genOptions.length} caracteres</span>
                 </div>
                 <input
                   type="range"
@@ -992,7 +1047,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => setGenOptions({ ...genOptions, useUppercase: e.target.checked })}
                     className="accent-cyan-400"
                   />
-                  <span>Uppercase (A-Z)</span>
+                  <span>Mayúsculas (A-Z)</span>
                 </label>
                 <label className="flex items-center gap-2 p-2 rounded-xl bg-white/5 cursor-pointer">
                   <input
@@ -1001,7 +1056,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => setGenOptions({ ...genOptions, useLowercase: e.target.checked })}
                     className="accent-cyan-400"
                   />
-                  <span>Lowercase (a-z)</span>
+                  <span>Minúsculas (a-z)</span>
                 </label>
                 <label className="flex items-center gap-2 p-2 rounded-xl bg-white/5 cursor-pointer">
                   <input
@@ -1010,7 +1065,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => setGenOptions({ ...genOptions, useNumbers: e.target.checked })}
                     className="accent-cyan-400"
                   />
-                  <span>Numbers (0-9)</span>
+                  <span>Números (0-9)</span>
                 </label>
                 <label className="flex items-center gap-2 p-2 rounded-xl bg-white/5 cursor-pointer">
                   <input
@@ -1019,7 +1074,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
                     onChange={(e) => setGenOptions({ ...genOptions, useSymbols: e.target.checked })}
                     className="accent-cyan-400"
                   />
-                  <span>Symbols (!@#$)</span>
+                  <span>Símbolos (!@#$)</span>
                 </label>
               </div>
             </div>
@@ -1029,7 +1084,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
               className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white flex items-center justify-center gap-2"
             >
               <Icon name="refresh" size={14} />
-              Generate New Password
+              Generar Otra Contraseña
             </button>
           </div>
         </div>

@@ -129,31 +129,31 @@ export default function DashboardPage() {
       {/* 1. TOP FLOATING BROWSER / SEARCH & PROFILE CAPSULE (Full-Width Responsive Bar) */}
       <header className="w-full mb-4 sm:mb-6 flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4">
         
-        {/* Brand & Search Container */}
+        {/* Contenedor de Marca y Búsqueda */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          {/* Brand Capsule */}
+          {/* Cápsula de Marca */}
           <div className="glass-pill px-4 sm:px-5 py-2 sm:py-2.5 flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
                 <span className="text-xs font-black text-white">P</span>
               </div>
               <div>
-                <h1 className="text-xs sm:text-sm font-bold text-white leading-none">Personal Platform</h1>
-                <p className="text-[9px] text-amber-300/80 font-medium tracking-wider uppercase">Spatial Frosted Studio</p>
+                <h1 className="text-xs sm:text-sm font-bold text-white leading-none">Plataforma Personal</h1>
+                <p className="text-[9px] text-amber-300/80 font-medium tracking-wider uppercase">Espacio de Trabajo Digital</p>
               </div>
             </div>
             <span className="sm:hidden px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
-              {stats.total} Projects
+              {stats.total} Proyectos
             </span>
           </div>
 
-          {/* Global Search Capsule */}
+          {/* Buscador Global */}
           <div className="relative w-full sm:w-80 md:w-96">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search projects, assets, tools..."
+              placeholder="Buscar proyectos, cuentas, archivos..."
               className="w-full pl-9 pr-4 py-2 glass-pill text-xs text-white placeholder-slate-400 outline-none focus:border-amber-400/50 transition-all"
             />
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
@@ -162,14 +162,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Header Right Actions (Pills Grid/Flex) */}
+        {/* Acciones Superiores */}
         <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-end w-full lg:w-auto">
           <button
             onClick={() => setIsAiDrawerOpen(true)}
             className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-violet-200 hover:text-white flex items-center gap-1.5 transition-all"
           >
             <span>✨</span>
-            <span className="hidden xs:inline">AI Copilot</span>
+            <span className="hidden xs:inline">Copiloto IA</span>
           </button>
 
           <button
@@ -177,7 +177,7 @@ export default function DashboardPage() {
             className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-amber-200 hover:text-white flex items-center gap-1.5 transition-all"
           >
             <span>⚡</span>
-            <span className="hidden xs:inline">Automations</span>
+            <span className="hidden xs:inline">Automatizaciones</span>
           </button>
 
           <button
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-emerald-300 hover:text-white flex items-center gap-1.5 transition-all shadow-sm shadow-emerald-500/20"
           >
             <Icon name="shield" size={13} />
-            <span className="hidden xs:inline">CipherVault</span>
+            <span className="hidden xs:inline">Contraseñas</span>
           </button>
 
           <button
@@ -193,28 +193,28 @@ export default function DashboardPage() {
             className="glass-pill px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-cyan-200 hover:text-white flex items-center gap-1.5 transition-all"
           >
             <Icon name="settings" size={13} />
-            <span className="hidden xs:inline">Settings</span>
+            <span className="hidden xs:inline">Configuración</span>
           </button>
 
-          {/* Profile pill */}
+          {/* Perfil */}
           <div className="glass-pill pl-1.5 pr-3.5 py-1 sm:py-1.5 flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow shrink-0">
-              JD
+              JF
             </div>
-            <span className="text-xs font-semibold text-white hidden sm:inline">John Doe</span>
+            <span className="text-xs font-semibold text-white hidden sm:inline">Juan Franco</span>
           </div>
         </div>
       </header>
 
-      {/* 2. MAIN WORKSPACE CONTAINER WITH DETACHED FLOATING DOCK (Full Viewport Spread) */}
+      {/* 2. CONTENEDOR PRINCIPAL CON DOCK FLOTANTE */}
       <div className="w-full flex-1 flex flex-col md:flex-row items-start gap-4 lg:gap-6 relative">
         
-        {/* DETACHED FLOATING ISLAND DOCK (Responsive Capsule Navigation) */}
+        {/* DOCK FLOTANTE DE ACCESOS RÁPIDOS */}
         <aside className="glass-dock-pill py-3 px-4 md:py-6 md:px-3.5 flex flex-row md:flex-col items-center justify-around md:justify-start gap-3 md:gap-5 w-full md:w-auto shrink-0 sticky top-3 md:top-20 z-30 shadow-2xl">
           <button
             onClick={() => { setSelectedFolderId(null); setSelectedTagId(null); }}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/20 hover:scale-105 transition-all shrink-0"
-            title="Dashboard Overview"
+            title="Panel Principal"
           >
             <Icon name="dashboard" size={18} />
           </button>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsVaultModalOpen(true)}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center hover:scale-105 transition-all shrink-0 shadow-lg shadow-emerald-500/20"
-            title="CipherVault - Password & Secrets Manager"
+            title="Gestor de Contraseñas & Cuentas (CipherVault)"
           >
             <Icon name="shield" size={18} />
           </button>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
           <button
             onClick={openCreateModal}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
-            title="Create New Project"
+            title="Crear Nuevo Proyecto"
           >
             <Icon name="plus" size={18} />
           </button>
@@ -238,7 +238,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsFolderModalOpen(true)}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
-            title="Manage Folders"
+            title="Gestionar Carpetas"
           >
             <Icon name="folder" size={18} />
           </button>
@@ -246,7 +246,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsTagModalOpen(true)}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
-            title="Manage Tags"
+            title="Gestionar Etiquetas"
           >
             <Icon name="tag" size={18} />
           </button>
@@ -256,7 +256,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsAiDrawerOpen(true)}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center hover:scale-105 transition-all shrink-0"
-            title="AI Documentation Assistant"
+            title="Asistente IA"
           >
             <span className="text-sm">✨</span>
           </button>
@@ -264,76 +264,73 @@ export default function DashboardPage() {
           <button
             onClick={() => setIsSettingsModalOpen(true)}
             className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-white/[0.08] hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all hover:scale-105 shrink-0"
-            title="Settings Hub"
+            title="Configuración"
           >
             <Icon name="settings" size={18} />
           </button>
         </aside>
 
-        {/* 3. GRAND MASTER FROSTED GLASS CANVAS (Expands across 100% width) */}
+        {/* 3. LIENZO PRINCIPAL DEL ESPACIO DE TRABAJO */}
         <main className="flex-1 w-full glass-canvas p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 relative overflow-hidden">
           
-          {/* Spatial Header & Circular Metric Dials */}
+          {/* Cabecera y Métricas */}
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
-                  My Workspace
+                  Mi Espacio de Trabajo
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Unified modular hub • Dual Storage Engine • Real-Time Pipelines
+                  Centro modular unificado • Motor de Almacenamiento Dual • Procesamiento en Tiempo Real
                 </p>
               </div>
 
-              {/* Quick Action Button */}
+              {/* Botón de Acción Rápida */}
               <button
                 onClick={openCreateModal}
                 className="glass-pill px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-orange-500/25 hover:brightness-110 transition-all self-start sm:self-auto"
               >
                 <Icon name="plus" size={14} />
-                <span>New Project Module</span>
+                <span>+ Nuevo Proyecto</span>
               </button>
             </div>
 
-            {/* TOP METRICS GLASS DIALS (Responsive Grid) */}
+            {/* DIALES DE MÉTRICAS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               
-              {/* Dial 1: Storage Quota & Provider (Amber Glow) */}
+              {/* Dial 1: Almacenamiento en la Nube */}
               <div className="glass-sub-card glass-glow-amber p-4 flex items-center justify-between">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider block truncate">Cloud Storage</span>
+                  <span className="text-[10px] uppercase font-bold text-amber-300 tracking-wider block truncate">Almacenamiento en la Nube</span>
                   <h3 className="text-base sm:text-lg font-black text-white truncate">4.8 GB <span className="text-xs font-normal text-slate-400">/ 50 GB</span></h3>
-                  <p className="text-[10px] text-amber-200/80 truncate">Supabase + Cloudflare R2 Active</p>
+                  <p className="text-[10px] text-amber-200/80 truncate">Supabase + Cloudflare R2 Activos</p>
                 </div>
-                {/* Circular Gauge Graphic */}
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-amber-500/30 flex items-center justify-center shrink-0 ml-2">
                   <div className="absolute inset-0 rounded-full border-4 border-amber-400 border-t-transparent border-r-transparent rotate-45" />
                   <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white">10%</span>
                 </div>
               </div>
 
-              {/* Dial 2: Asynchronous Worker Queue (Purple Glow) */}
+              {/* Dial 2: Servicio Worker Multimedia */}
               <div className="glass-sub-card glass-glow-purple p-4 flex items-center justify-between">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block truncate">Worker Service</span>
+                  <span className="text-[10px] uppercase font-bold text-purple-300 tracking-wider block truncate">Servicio Worker</span>
                   <h3 className="text-base sm:text-lg font-black text-white truncate">FFmpeg 2026</h3>
-                  <p className="text-[10px] text-purple-200/80 truncate">4 Concurrent Nodes • Ready</p>
+                  <p className="text-[10px] text-purple-200/80 truncate">4 Nodos Concurrentes • Listo</p>
                 </div>
-                {/* Circular Gauge Graphic */}
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 border-purple-500/30 flex items-center justify-center shrink-0 ml-2">
                   <div className="absolute inset-0 rounded-full border-4 border-purple-400 border-b-transparent -rotate-45" />
                   <span className="text-[10px] sm:text-[11px] font-mono font-bold text-emerald-300">100%</span>
                 </div>
               </div>
 
-              {/* Dial 3: Total Assets & Revisions (Cyan Glow) */}
+              {/* Dial 3: Archivos Guardados */}
               <div className="glass-sub-card glass-glow-cyan p-4 flex items-center justify-between sm:col-span-2 lg:col-span-1">
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-cyan-300 tracking-wider block truncate">Stored Assets</span>
-                  <h3 className="text-base sm:text-lg font-black text-white truncate">{stats.totalAssets} Files</h3>
-                  <p className="text-[10px] text-cyan-200/80 truncate">{stats.total} Projects • Non-Destructive</p>
+                  <span className="text-[10px] uppercase font-bold text-cyan-300 tracking-wider block truncate">Archivos Guardados</span>
+                  <h3 className="text-base sm:text-lg font-black text-white truncate">{stats.totalAssets} Archivos</h3>
+                  <p className="text-[10px] text-cyan-200/80 truncate">{stats.total} Proyectos • Sin pérdida</p>
                 </div>
-                {/* Circular Indicator */}
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shrink-0 ml-2">
                   <Icon name="folder" size={18} />
                 </div>
@@ -342,7 +339,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* FOLDERS & CATEGORIES PILL TABS */}
+          {/* PESTAÑAS DE CARPETAS Y FILTROS */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
               <button
@@ -353,7 +350,7 @@ export default function DashboardPage() {
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                All Projects ({stats.total})
+                Todos los proyectos ({stats.total})
               </button>
 
               {folders.map((f) => {
@@ -376,7 +373,7 @@ export default function DashboardPage() {
               })}
             </div>
 
-            {/* View Mode & Filter Controls */}
+            {/* Controles de Vista */}
             <div className="flex items-center gap-2 shrink-0">
               <div className="flex glass-pill p-0.5">
                 {(["all", "favorites", "archived"] as const).map((tab) => (
@@ -389,7 +386,7 @@ export default function DashboardPage() {
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
-                    {tab}
+                    {tab === "all" ? "Todos" : tab === "favorites" ? "Favoritos" : "Archivados"}
                   </button>
                 ))}
               </div>
@@ -397,29 +394,29 @@ export default function DashboardPage() {
               <button
                 onClick={() => setLayoutView(layoutView === "grid" ? "list" : "grid")}
                 className="glass-pill p-1.5 text-slate-300 hover:text-white"
-                title="Toggle View Mode"
+                title="Cambiar modo de vista"
               >
                 <Icon name={layoutView === "grid" ? "grid" : "list"} size={14} />
               </button>
             </div>
           </div>
 
-          {/* PROJECT CARDS SHOWCASE (Full-Width Responsive 1-2-3-4-5 Columns Grid) */}
+          {/* CUADRÍCULA DE PROYECTOS */}
           <section className="space-y-4">
             {filteredProjects.length === 0 ? (
               <div className="glass-sub-card p-12 text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-400">
                   <Icon name="folder" size={20} />
                 </div>
-                <h4 className="text-sm font-bold text-white">No projects found</h4>
+                <h4 className="text-sm font-bold text-white">No se encontraron proyectos</h4>
                 <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Try adjusting your filters or click below to create your first modular workspace.
+                  Ajusta tus filtros de búsqueda o haz clic abajo para crear tu primer proyecto modular.
                 </p>
                 <button
                   onClick={openCreateModal}
                   className="glass-pill px-5 py-2 text-xs font-bold text-amber-300 border-amber-500/30 hover:border-amber-500/60"
                 >
-                  + Create New Project
+                  + Crear Nuevo Proyecto
                 </button>
               </div>
             ) : layoutView === "grid" ? (
@@ -434,7 +431,7 @@ export default function DashboardPage() {
                       onClick={() => openFileViewer(p.id)}
                       className="glass-sub-card p-5 cursor-pointer flex flex-col justify-between gap-4 group relative overflow-hidden"
                     >
-                      {/* Top Meta Bar */}
+                      {/* Barra Superior */}
                       <div className="flex items-start justify-between gap-2">
                         {folder ? (
                           <span
@@ -460,53 +457,53 @@ export default function DashboardPage() {
                             className={`p-1 rounded-lg transition-colors ${
                               p.isFavorite ? "text-amber-400" : "text-slate-500 hover:text-slate-300"
                             }`}
-                            title="Favorite"
+                            title="Favorito"
                           >
                             <Icon name="star" size={13} />
                           </button>
                           <button
                             onClick={(e) => openEditModal(p.id, e)}
                             className="p-1 text-slate-500 hover:text-white rounded-lg"
-                            title="Edit"
+                            title="Editar"
                           >
                             <Icon name="edit" size={13} />
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); duplicateProject(p.id); }}
                             className="p-1 text-slate-500 hover:text-white rounded-lg"
-                            title="Duplicate"
+                            title="Duplicar"
                           >
                             <Icon name="copy" size={13} />
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
                             className="p-1 text-slate-500 hover:text-red-400 rounded-lg"
-                            title="Archive"
+                            title="Archivar"
                           >
                             <Icon name="trash" size={13} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Content */}
+                      {/* Contenido */}
                       <div className="space-y-1.5">
                         <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors leading-snug">
                           {p.name}
                         </h3>
                         <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                          {p.description || "No project description provided."}
+                          {p.description || "Sin descripción proporcionada."}
                         </p>
                       </div>
 
-                      {/* Bottom Footer Actions */}
+                      {/* Pie de Tarjeta */}
                       <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
                         <span className="glass-pill px-2.5 py-0.5 text-[10px] font-mono text-slate-300 flex items-center gap-1">
                           <Icon name="folder" size={11} />
-                          {projectAssetCount} assets
+                          {p.id === "proj-vault" ? "Cuentas Cifradas" : `${projectAssetCount} archivos`}
                         </span>
 
                         <span className="text-[11px] font-semibold text-amber-300 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                          <span>Explore</span>
+                          <span>{p.id === "proj-vault" ? "Abrir Bóveda" : "Explorar"}</span>
                           <span>→</span>
                         </span>
                       </div>
@@ -515,7 +512,7 @@ export default function DashboardPage() {
                 })}
               </div>
             ) : (
-              /* List View */
+              /* Vista en Lista */
               <div className="space-y-2.5">
                 {filteredProjects.map((p) => {
                   const folder = folders.find((f) => f.id === p.folderId);
@@ -535,14 +532,14 @@ export default function DashboardPage() {
                             border: `1px solid ${p.color}40`,
                           }}
                         >
-                          <Icon name="project" size={18} style={{ color: p.color }} />
+                          <Icon name={p.id === "proj-vault" ? "shield" : "project"} size={18} style={{ color: p.color }} />
                         </div>
                         <div className="truncate">
                           <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors truncate">
                             {p.name}
                           </h4>
                           <p className="text-xs text-slate-400 truncate max-w-md">
-                            {p.description || "Modular workspace project"}
+                            {p.description || "Proyecto modular"}
                           </p>
                         </div>
                       </div>
@@ -562,7 +559,7 @@ export default function DashboardPage() {
                         )}
 
                         <span className="glass-pill px-2.5 py-0.5 text-[10px] font-mono text-slate-300">
-                          {projectAssetCount} files
+                          {p.id === "proj-vault" ? "Bóveda" : `${projectAssetCount} archivos`}
                         </span>
 
                         <button
@@ -579,9 +576,9 @@ export default function DashboardPage() {
             )}
           </section>
 
-          {/* TAGS FILTER FOOTER PILLS */}
+          {/* ETIQUETAS FOOTER */}
           <div className="pt-4 border-t border-white/5 flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Tags:</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Etiquetas:</span>
             {tags.map((t) => (
               <button
                 key={t.id}

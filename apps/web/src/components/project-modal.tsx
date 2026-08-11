@@ -94,7 +94,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/5">
             <h2 className="text-xl font-semibold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent flex items-center gap-2">
               <Icon name="project" className="text-primary-light" />
-              {projectId ? "Edit Project" : "Create New Project"}
+              {projectId ? "Editar Proyecto" : "Crear Nuevo Proyecto"}
             </h2>
             <button
               onClick={onClose}
@@ -108,13 +108,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Project Name */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Project Name
+                Nombre del Proyecto
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Minecraft Skin Parser"
+                placeholder="ej: Gestor de Recursos o Herramienta Mod"
                 required
                 className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 text-white outline-none transition-all placeholder:text-white/30"
               />
@@ -123,12 +123,12 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Description */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Description
+                Descripción
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe your project, folder assets, or custom pipelines..."
+                placeholder="Describe los objetivos de tu proyecto, archivos asociados o tareas..."
                 rows={3}
                 className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/10 rounded-xl focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/30 text-white outline-none transition-all placeholder:text-white/30 resize-none"
               />
@@ -137,14 +137,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Folder Selection */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Assign to Folder
+                Asignar a Carpeta
               </label>
               <select
                 value={folderId}
                 onChange={(e) => setFolderId(e.target.value)}
                 className="w-full px-4 py-2.5 bg-[#0e131f] border border-white/10 rounded-xl focus:border-blue-500/50 text-white outline-none transition-all"
               >
-                <option value="">No Folder (Root level)</option>
+                <option value="">Sin carpeta (Nivel raíz)</option>
                 {folders.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
@@ -156,7 +156,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Color preset */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
-                Accent Theme Color
+                Color Temático
               </label>
               <div className="flex flex-wrap gap-2.5">
                 {PRESET_COLORS.map((c) => (
@@ -184,7 +184,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Tags Selection */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
-                Project Tags
+                Etiquetas del Proyecto
               </label>
               <div className="flex flex-wrap gap-2">
                 {tags.map((t) => {
@@ -225,16 +225,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     size={16}
                     className={isFavorite ? "text-yellow-400" : "text-slate-400"}
                   />
-                  Mark as Favorite
+                  Marcar como Favorito
                 </span>
               </label>
 
               <div className="flex gap-3">
                 <GlassButton type="button" variant="ghost" size="sm" onClick={onClose}>
-                  Cancel
+                  Cancelar
                 </GlassButton>
                 <GlassButton type="submit" variant="primary" size="sm">
-                  {projectId ? "Save Changes" : "Create Project"}
+                  {projectId ? "Guardar Cambios" : "Crear Proyecto"}
                 </GlassButton>
               </div>
             </div>
